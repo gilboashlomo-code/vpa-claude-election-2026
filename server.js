@@ -143,6 +143,18 @@ app.post('/api/admin/system-mode', (req, res) => {
   res.json({ success: true, mode: systemMode });
 });
 
+app.post('/api/admin/reset-all', (req, res) => {
+  voters = [];
+  polls = [];
+  nextVoterId = 1;
+  nextPollId = 1;
+  saveData();
+  
+  console.log('🗑️ All data reset');
+  
+  res.json({ success: true });
+});
+
 app.post('/api/admin/voters/add', (req, res) => {
   const { name, idNumber, pollId, address, notes } = req.body;
   
