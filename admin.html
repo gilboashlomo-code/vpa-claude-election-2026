@@ -150,6 +150,14 @@
       background: #059669;
       transform: translateY(-2px);
     }
+    .btn-danger { 
+      background: #dc2626; 
+      color: white; 
+    }
+    .btn-danger:hover {
+      background: #b91c1c;
+      transform: translateY(-2px);
+    }
     .btn-outline { 
       background: white; 
       color: #667eea; 
@@ -407,6 +415,7 @@
       <button class="btn btn-primary" id="btnAddPoll">📍 הוסף קלפי</button>
       <button class="btn btn-success" id="btnSetCurrentLocation">📍 קבע מיקום נוכחי כקלפי</button>
       <button class="btn btn-outline" id="btnRefresh">🔄 רענן נתונים</button>
+      <button class="btn btn-danger" id="btnResetAll">🗑️ נקה הכל</button>
       
       <div class="export-group">
         <span class="export-label">ייצוא נתונים:</span>
@@ -544,7 +553,30 @@
       document.getElementById('btnRefresh').addEventListener('click', () => {
         shouldUpdateMapView = false;
         loadData();
-        alert('הנתונים רוענו בהצלחה! ✅');
+        alert('הנתונים רועננו בהצלחה! ✅');
+      });
+      
+      document.getElementById('btnResetAll').addEventListener('click', async () => {
+        if (!confirm('⚠️ האם אתה בטוח שברצונך למחוק את כל הנתונים?\n\nפעולה זו תמחק:\n- כל הקלפיות\n- כל הבוחרים\n- כל נתוני ההצבעה\n\nאי אפשר לשחזר!')) {
+          return;
+        }
+        
+        try {
+          const res = await fetch('/api/admin/reset-all', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          
+          if (res.ok) {
+            alert('✅ כל הנתונים נמחקו בהצלחה!');
+            shouldUpdateMapView = true;
+            loadData();
+          } else {
+            alert('❌ שגיאה במחיקת נתונים');
+          }
+        } catch (e) {
+          alert('❌ שגיאה: ' + e.message);
+        }
       });
       
       document.getElementById('btnExportVoted').addEventListener('click', () => {
