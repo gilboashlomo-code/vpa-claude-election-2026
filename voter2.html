@@ -3,317 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VPA - לוח בקרת הצבעה</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <title>VPA - הצבעה</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { 
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
       min-height: 100vh; 
-      padding: 20px; 
-    }
-    .container { 
-      max-width: 1600px; 
-      margin: 0 auto; 
-      background: white; 
-      border-radius: 16px; 
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3); 
-      overflow: hidden; 
-    }
-    .system-mode-banner {
-      padding: 20px 40px;
-      text-align: center;
-      font-size: 18px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s;
-      border-bottom: 3px solid rgba(0,0,0,0.1);
-    }
-    .system-mode-banner.test {
-      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-      color: #78350f;
-    }
-    .system-mode-banner.election {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      color: white;
-    }
-    .system-mode-banner:hover {
-      transform: scale(1.02);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-    .mode-icon {
-      font-size: 24px;
-      margin-left: 10px;
-    }
-    .mode-subtitle {
-      font-size: 14px;
-      font-weight: 400;
-      margin-top: 5px;
-      opacity: 0.9;
-    }
-    .header { 
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-      color: white; 
-      padding: 30px 40px; 
-      position: relative;
-    }
-    .header-content {
+      padding: 20px;
       display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 40px;
-    }
-    .header-main {
-      flex: 1;
-      text-align: center;
-      padding: 0 20px;
-    }
-    .header h1 { 
-      font-size: 32px; 
-      font-weight: 700; 
-      margin-bottom: 15px;
-    }
-    .header-date {
-      font-size: 24px;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
-    .header-countdown {
-      font-size: 18px;
-      margin-top: 8px;
-    }
-    .header-countdown span {
-      font-weight: 700;
-      font-size: 20px;
-    }
-    .party-logo {
-      background: white;
-      padding: 15px 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      text-align: center;
-      min-width: 120px;
-    }
-    .party-logo-icon {
-      font-size: 28px;
-      margin-bottom: 5px;
-    }
-    .party-logo-text {
-      font-size: 14px;
-      font-weight: 700;
-      color: #667eea;
-    }
-    .header-info { 
-      text-align: left; 
-      font-size: 14px; 
-      opacity: 0.95;
-      min-width: 180px;
-    }
-    .radius-display {
-      margin-top: 10px;
-      padding: 8px 12px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 8px;
-      font-size: 14px;
-    }
-    .actions-bar { 
-      background: #f8f9fa; 
-      padding: 20px 40px; 
-      border-bottom: 2px solid #e9ecef; 
-      display: flex; 
-      gap: 10px; 
-      flex-wrap: wrap; 
-    }
-    .btn { 
-      padding: 12px 20px; 
-      border-radius: 8px; 
-      border: none; 
-      font-size: 14px; 
-      font-weight: 600; 
-      cursor: pointer; 
-      transition: all 0.3s; 
-    }
-    .btn-primary { 
-      background: #667eea; 
-      color: white; 
-    }
-    .btn-primary:hover { 
-      background: #5568d3; 
-      transform: translateY(-2px); 
-    }
-    .btn-success { 
-      background: #10b981; 
-      color: white; 
-    }
-    .btn-success:hover {
-      background: #059669;
-      transform: translateY(-2px);
-    }
-    .btn-outline { 
-      background: white; 
-      color: #667eea; 
-      border: 2px solid #667eea; 
-    }
-    .btn-outline:hover {
-      background: #667eea;
-      color: white;
-    }
-    .export-group {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+      justify-content: center;
       align-items: center;
     }
-    .export-label {
-      font-weight: 700;
-      color: #374151;
-      font-size: 14px;
-    }
-    .section-header { 
+    .container { 
       background: white; 
-      padding: 20px 40px; 
-      border-bottom: 1px solid #e5e7eb; 
-    }
-    .section-header h2 { 
-      font-size: 22px; 
-      font-weight: 700; 
-      color: #1f2937; 
-    }
-    .stats-grid { 
-      display: grid; 
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
-      gap: 20px; 
-      padding: 30px 40px; 
-      background: #f8f9fa; 
-    }
-    .stat-card { 
-      background: white; 
-      padding: 24px; 
-      border-radius: 12px; 
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
-    }
-    .stat-card .label {
-      font-size: 14px;
-      color: #6b7280;
-      margin-bottom: 8px;
-    }
-    .stat-card .value { 
-      font-size: 36px; 
-      font-weight: 700; 
-      color: #1f2937; 
-    }
-    .stat-card.green .value { 
-      color: #10b981; 
-    }
-    .stat-card.blue .value { 
-      color: #3b82f6; 
-    }
-    .stat-card .sub {
-      font-size: 14px;
-      color: #6b7280;
-      margin-top: 8px;
-    }
-    .progress-bar { 
-      width: 100%; 
-      height: 8px; 
-      background: #e5e7eb; 
-      border-radius: 10px; 
-      overflow: hidden; 
-      margin-top: 12px; 
-    }
-    .progress-fill { 
-      height: 100%; 
-      background: linear-gradient(90deg, #10b981 0%, #34d399 100%); 
-      transition: width 0.5s; 
-    }
-    .map-section { 
-      padding: 20px 40px; 
-    }
-    .map-section h3 {
-      font-size: 20px;
-      font-weight: 700;
-      color: #1f2937;
-      margin-bottom: 15px;
-    }
-    #map { 
-      height: 500px; 
-      border-radius: 12px; 
-      overflow: hidden; 
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
-    }
-    .table-container { 
-      padding: 0 40px 40px 40px; 
-      overflow-x: auto; 
-    }
-    table { 
-      width: 100%; 
-      border-collapse: collapse; 
-      background: white; 
-    }
-    thead { 
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-      color: white; 
-    }
-    th { 
-      padding: 14px 12px; 
-      text-align: right; 
-      font-weight: 600; 
-      font-size: 13px; 
-    }
-    td { 
-      padding: 14px 12px; 
-      font-size: 13px; 
-      color: #374151; 
-      border-bottom: 1px solid #f3f4f6; 
-    }
-    .badge { 
-      display: inline-block; 
-      padding: 5px 10px; 
       border-radius: 20px; 
-      font-size: 11px; 
-      font-weight: 600; 
-    }
-    .badge-success { 
-      background: #d1fae5; 
-      color: #065f46; 
-    }
-    .badge-pending { 
-      background: #fef3c7; 
-      color: #92400e; 
-    }
-    .empty-state { 
-      text-align: center; 
-      padding: 60px 20px; 
-      color: #6b7280; 
-    }
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.5);
-    }
-    .modal-content {
-      background-color: white;
-      margin: 10% auto;
-      padding: 30px;
-      border-radius: 16px;
-      width: 90%;
+      padding: 40px 30px;
       max-width: 500px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3); 
+      text-align: center;
     }
-    .modal-header {
-      font-size: 24px;
-      font-weight: 700;
+    .logo {
+      font-size: 64px;
       margin-bottom: 20px;
+    }
+    h1 {
+      font-size: 28px;
       color: #1f2937;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      font-size: 16px;
+      color: #6b7280;
+      margin-bottom: 30px;
     }
     .form-group {
       margin-bottom: 20px;
+      text-align: right;
     }
     .form-group label {
       display: block;
@@ -321,553 +48,326 @@
       font-weight: 600;
       color: #374151;
     }
-    .form-group input, .form-group select {
+    .form-group input {
       width: 100%;
-      padding: 12px;
+      padding: 15px;
       border: 2px solid #e5e7eb;
-      border-radius: 8px;
-      font-size: 14px;
+      border-radius: 12px;
+      font-size: 16px;
+      text-align: right;
     }
-    .form-group input:focus, .form-group select:focus {
+    .form-group input:focus {
       outline: none;
       border-color: #667eea;
     }
-    .form-group .help-text {
-      font-size: 12px;
-      color: #6b7280;
-      margin-top: 5px;
-    }
-    .modal-actions {
-      display: flex;
-      gap: 10px;
-      justify-content: flex-end;
-      margin-top: 30px;
-    }
-    .btn-cancel {
-      background: #e5e7eb;
-      color: #374151;
-      padding: 12px 24px;
-      border-radius: 8px;
-      border: none;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .btn-submit {
-      background: #667eea;
+    .btn {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
-      padding: 12px 24px;
-      border-radius: 8px;
       border: none;
-      font-weight: 600;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 700;
       cursor: pointer;
+      margin-top: 20px;
+      transition: transform 0.2s;
     }
-    .btn-submit:hover {
-      background: #5568d3;
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .status {
+      margin-top: 30px;
+      padding: 20px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .status.tracking {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    .status.success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .distance {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 20px 0;
+      color: #667eea;
+    }
+    .hidden {
+      display: none;
+    }
+    .message-box {
+      margin-top: 20px;
+      padding: 20px;
+      background: #f3f4f6;
+      border-radius: 12px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="system-mode-banner test" id="systemModeBanner">
-      <div>
-        <span class="mode-icon">⚠️</span>
-        <span id="modeText">מצב ניסוי כלים</span>
-      </div>
-      <div class="mode-subtitle" id="modeSubtitle">נא לכבות בסוף כל ניסוי - לחץ להחלפת מצב</div>
-    </div>
+    <div class="logo">🗳️</div>
+    <h1>מערכת הצבעה VPA</h1>
+    <p class="subtitle">ברוכים הבאים למערכת המעקב</p>
     
-    <div class="header">
-      <div class="header-content">
-        <div class="party-logo">
-          <div class="party-logo-icon">🏛️</div>
-          <div class="party-logo-text">מפלגת הדמו</div>
-        </div>
-        
-        <div class="header-main">
-          <h1>🗳️ לוח בקרת הצבעה בקלפיות</h1>
-          <div class="header-date" id="currentDate">טוען...</div>
-          <div class="header-countdown">
-            ⏰ נותרו עוד: <span id="countdown">--:--:--</span>
-          </div>
-          <div style="margin-top: 10px; font-size: 16px;">ניהול יום בחירות בזמן אמת - VPA</div>
-        </div>
-        
-        <div class="header-info">
-          <div><strong>רדיוס ברירת מחדל:</strong> <span id="defaultRadiusText">20</span> מטר</div>
-          <div class="radius-display">
-            📏 ניתן לשנות לכל קלפי בנפרד
-          </div>
-          <div style="margin-top: 10px;"><strong>עדכון אחרון:</strong> <span id="lastUpdate">--:--:--</span></div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="actions-bar">
-      <button class="btn btn-primary" id="btnAddVoter">➕ הוסף בוחר</button>
-      <button class="btn btn-primary" id="btnAddPoll">📍 הוסף קלפי</button>
-      <button class="btn btn-success" id="btnSetCurrentLocation">📍 קבע מיקום נוכחי כקלפי</button>
-      <button class="btn btn-outline" id="btnRefresh">🔄 רענן נתונים</button>
-      
-      <div class="export-group">
-        <span class="export-label">ייצוא נתונים:</span>
-        <button class="btn btn-success" id="btnExportVoted">📥 הצביעו</button>
-        <button class="btn btn-success" id="btnExportNotVoted">📥 טרם הצביעו</button>
-        <button class="btn btn-success" id="btnExportAll">📥 כולם</button>
-      </div>
-    </div>
-    
-    <div class="section-header">
-      <h2>📊 נתוני הצבעה כוללים</h2>
-    </div>
-    
-    <div class="stats-grid">
-      <div class="stat-card green">
-        <div class="label">✅ הצביעו</div>
-        <div class="value" id="statVoted">0</div>
-        <div class="sub">מתוך <span id="statTotal">0</span> בוחרים</div>
-        <div class="progress-bar">
-          <div class="progress-fill" id="progressVoted" style="width: 0%"></div>
-        </div>
-      </div>
-      
-      <div class="stat-card blue">
-        <div class="label">📊 אחוז הצבעה</div>
-        <div class="value" id="statPercentage">0%</div>
-      </div>
-      
-      <div class="stat-card">
-        <div class="label">🏢 קלפיות</div>
-        <div class="value" id="statPolls">0</div>
-      </div>
-      
-      <div class="stat-card">
-        <div class="label">⏰ אירועים</div>
-        <div class="value" id="statEvents">0</div>
-      </div>
-    </div>
-    
-    <div class="map-section">
-      <h3>🗺️ מפת קלפיות</h3>
-      <div id="map"></div>
-    </div>
-    
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>שם</th>
-            <th>קלפי</th>
-            <th>רדיוס (מ')</th>
-            <th>הצביע?</th>
-            <th>שעה</th>
-          </tr>
-        </thead>
-        <tbody id="votersBody">
-          <tr>
-            <td colspan="6" class="empty-state">טוען נתונים...</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  
-  <div id="voterModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">➕ הוסף בוחר חדש</div>
+    <div id="registrationForm">
       <form id="voterForm">
         <div class="form-group">
-          <label>שם הבוחר *</label>
+          <label>שם מלא *</label>
           <input type="text" id="voterName" required placeholder="הכנס שם מלא">
         </div>
         <div class="form-group">
-          <label>מספר ת.ז (אופציונלי)</label>
-          <input type="text" id="voterIdNumber" placeholder="הכנס ת.ז" maxlength="9">
+          <label>מספר ת.ז *</label>
+          <input type="text" id="voterIdNumber" required placeholder="הכנס ת.ז" maxlength="9">
         </div>
-        <div class="form-group">
-          <label>בחר קלפי *</label>
-          <select id="voterPoll" required>
-            <option value="">-- בחר קלפי --</option>
-          </select>
-        </div>
-        <div class="modal-actions">
-          <button type="button" class="btn-cancel" id="btnCancelVoter">ביטול</button>
-          <button type="submit" class="btn-submit">הוסף בוחר</button>
-        </div>
+        <button type="submit" class="btn" id="submitBtn">
+          📍 הצטרף והפעל מעקב מיקום
+        </button>
       </form>
     </div>
-  </div>
-  
-  <div id="pollModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">📍 הוסף קלפי חדשה</div>
-      <form id="pollForm">
-        <div class="form-group">
-          <label>שם הקלפי *</label>
-          <input type="text" id="pollName" required placeholder="לדוגמה: קלפי מרכז העיר">
-        </div>
-        <div class="form-group">
-          <label>כתובת מדויקת *</label>
-          <input type="text" id="pollAddress" required placeholder="לדוגמה: רחוב הרצל 10, תל אביב">
-          <div class="help-text">המערכת תמיר את הכתובת למיקום על המפה אוטומטית</div>
-        </div>
-        <div class="form-group">
-          <label>📏 רדיוס זיהוי (מטרים) *</label>
-          <input type="number" id="pollRadius" value="20" min="5" max="100" required>
-          <div class="help-text">המרחק המקסימלי לזיהוי הצבעה (ברירת מחדל: 20 מטר)</div>
-        </div>
-        <div class="modal-actions">
-          <button type="button" class="btn-cancel" id="btnCancelPoll">ביטול</button>
-          <button type="submit" class="btn-submit">הוסף קלפי</button>
-        </div>
-      </form>
-    </div>
-  </div>
-  
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-    let data = null;
-    let map = null;
-    let markers = [];
-    let shouldUpdateMapView = true;
-    let currentSystemMode = 'test';
     
-    document.addEventListener('DOMContentLoaded', () => {
-      initMap();
-      loadData();
-      setInterval(loadData, 5000);
-      updateDateTime();
-      setInterval(updateDateTime, 1000);
+    <div id="trackingStatus" class="hidden">
+      <div class="status tracking">
+        <div>📡 מעקב פעיל</div>
+        <div style="margin-top: 10px; font-size: 14px;">המערכת עוקבת אחרי המיקום שלך</div>
+      </div>
       
-      document.getElementById('systemModeBanner').addEventListener('click', toggleSystemMode);
+      <div class="distance" id="distanceDisplay">
+        מחשב מרחק...
+      </div>
       
-      document.getElementById('btnRefresh').addEventListener('click', () => {
-        shouldUpdateMapView = false;
-        loadData();
-        alert('הנתונים רוענו בהצלחה! ✅');
-      });
+      <div id="pollInfo" style="color: #6b7280; font-size: 14px;">
+      </div>
+    </div>
+    
+    <div id="successMessage" class="hidden">
+      <div class="status success">
+        <div style="font-size: 48px; margin-bottom: 10px;">✅</div>
+        <div style="font-size: 24px;">הצבעה נרשמה בהצלחה!</div>
+        <div style="margin-top: 10px; font-size: 14px;">תודה שהשתתפת</div>
+      </div>
       
-      document.getElementById('btnExportVoted').addEventListener('click', () => {
-        window.location.href = '/api/admin/export/voted';
-      });
+      <div id="messageBox" class="message-box">
+        <h3 style="color: #1f2937; margin-bottom: 10px;">תודה שהצבעת!</h3>
+        <p style="color: #6b7280;">למידע נוסף, בקר באתר המרצה:</p>
+        <a href="https://example.com" target="_blank" style="color: #667eea; font-weight: 600; font-size: 18px;">לחץ כאן למידע נוסף</a>
+      </div>
+    </div>
+  </div>
+  
+  <audio id="alertSound" preload="auto">
+    <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwPUKbk77FgGwU7k9jyyHgpBSl+zPDbj0AKElyw6OyrWBUIQ5zd8r1pHgUsgs/y14k1CBpqvfDjm0wMDlCl5O+wYBwGOpPY8sh4KQUpf8zx3I9AChJcr+jqrFgVCEKc3fK8aB4FLIHu8tiJNQgaaL3v45tMDA9QpuvwrmkdBjqT2PLIeCkFKX/M8dyPQAoSXK/o6qxYFQhCnN3yvGgeBSyB7vLYiTUIG2m98OOaTgwOUKbk8LJoHQY5k9jxyHkqBSh+zPHcj0AKElyw6OusWBUIQ53e8r1pHgUrge/y2Ik1CBpovfDjm0wMD1Cm5PCyaB0GOZPm8sp5KQUofsrw3I9AChJcr+jqrFgVCEOd3vK9aR4FK4Hv8tiJNQgaaL3w45tMDA9Qpuvwrmkd=" type="audio/wav">
+  </audio>
+  
+  <script>
+    let watchId = null;
+    let voterId = null;
+    let nearestPoll = null;
+    let hasVoted = false;
+    let lastDistance = null;
+    
+    function vibrate() {
+      if ('vibrate' in navigator) {
+        navigator.vibrate([200, 100, 200, 100, 200, 100, 200]);
+      }
+    }
+    
+    function playAlert() {
+      const audio = document.getElementById('alertSound');
+      audio.play().catch(e => console.log('Audio play failed:', e));
+    }
+    
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371e3;
+      const φ1 = lat1 * Math.PI / 180;
+      const φ2 = lat2 * Math.PI / 180;
+      const Δφ = (lat2 - lat1) * Math.PI / 180;
+      const Δλ = (lon2 - lon1) * Math.PI / 180;
       
-      document.getElementById('btnExportNotVoted').addEventListener('click', () => {
-        window.location.href = '/api/admin/export/not-voted';
-      });
+      const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                Math.cos(φ1) * Math.cos(φ2) *
+                Math.sin(Δλ/2) * Math.sin(Δλ/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
       
-      document.getElementById('btnExportAll').addEventListener('click', () => {
-        window.location.href = '/api/admin/export/all';
-      });
-      
-      document.getElementById('btnAddPoll').addEventListener('click', () => {
-        document.getElementById('pollModal').style.display = 'block';
-      });
-      
-      document.getElementById('btnCancelPoll').addEventListener('click', () => {
-        document.getElementById('pollModal').style.display = 'none';
-        document.getElementById('pollForm').reset();
-      });
-      
-      document.getElementById('pollForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
+      return R * c;
+    }
+    
+    async function findNearestPoll(lat, lng) {
+      try {
+        const res = await fetch('/api/admin/data');
+        const data = await res.json();
         
-        const name = document.getElementById('pollName').value;
-        const address = document.getElementById('pollAddress').value;
-        const radius = parseInt(document.getElementById('pollRadius').value);
+        if (data.polls.length === 0) return null;
         
-        const submitBtn = e.target.querySelector('.btn-submit');
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'ממיר כתובת...';
+        let nearest = null;
+        let minDistance = Infinity;
         
-        try {
-          const res = await fetch('/api/admin/polls/add', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, address, radius })
-          });
-          
-          if (res.ok) {
-            alert('✅ קלפי נוספה בהצלחה!');
-            document.getElementById('pollModal').style.display = 'none';
-            document.getElementById('pollForm').reset();
-            shouldUpdateMapView = true;
-            loadData();
-          }
-        } catch (e) {
-          alert('❌ שגיאה: ' + e.message);
-        } finally {
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'הוסף קלפי';
-        }
-      });
-      
-      document.getElementById('btnSetCurrentLocation').addEventListener('click', () => {
-        if (!navigator.geolocation) {
-          alert('❌ הדפדפן שלך לא תומך ב-GPS');
-          return;
-        }
-        
-        const name = prompt('שם הקלפי:');
-        if (!name) return;
-        
-        const radiusInput = prompt('רדיוס זיהוי (מטרים):', '20');
-        const radius = parseInt(radiusInput) || 20;
-        
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            try {
-              const res = await fetch('/api/admin/polls/add', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                  name, 
-                  address: 'מיקום נוכחי',
-                  lat: position.coords.latitude,
-                  lng: position.coords.longitude,
-                  radius: radius
-                })
-              });
-              
-              if (res.ok) {
-                alert('✅ קלפי נוספה במיקום הנוכחי!');
-                shouldUpdateMapView = true;
-                loadData();
-              }
-            } catch (e) {
-              alert('❌ שגיאה: ' + e.message);
-            }
-          },
-          () => {
-            alert('❌ לא ניתן לקבל את המיקום הנוכחי');
-          }
-        );
-      });
-      
-      document.getElementById('btnAddVoter').addEventListener('click', async () => {
-        await loadData();
-        
-        if (data.polls.length === 0) {
-          alert('❌ אין קלפיות במערכת. הוסף קלפי קודם.');
-          return;
-        }
-        
-        const select = document.getElementById('voterPoll');
-        select.innerHTML = '<option value="">-- בחר קלפי --</option>';
         data.polls.forEach(poll => {
-          const option = document.createElement('option');
-          option.value = poll.id;
-          option.textContent = `${poll.name} (רדיוס: ${poll.radius}מ')`;
-          select.appendChild(option);
+          const distance = calculateDistance(
+            lat, lng,
+            parseFloat(poll.lat), parseFloat(poll.lng)
+          );
+          
+          if (distance < minDistance) {
+            minDistance = distance;
+            nearest = { ...poll, distance };
+          }
         });
         
-        document.getElementById('voterModal').style.display = 'block';
-      });
-      
-      document.getElementById('btnCancelVoter').addEventListener('click', () => {
-        document.getElementById('voterModal').style.display = 'none';
-        document.getElementById('voterForm').reset();
-      });
-      
-      document.getElementById('voterForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const name = document.getElementById('voterName').value;
-        const idNumber = document.getElementById('voterIdNumber').value;
-        const pollId = parseInt(document.getElementById('voterPoll').value);
-        
-        try {
-          const res = await fetch('/api/admin/voters/add', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, idNumber, pollId })
-          });
-          
-          if (res.ok) {
-            alert('✅ בוחר נוסף בהצלחה!');
-            document.getElementById('voterModal').style.display = 'none';
-            document.getElementById('voterForm').reset();
-            loadData();
-          }
-        } catch (e) {
-          alert('❌ שגיאה: ' + e.message);
-        }
-      });
-      
-      window.addEventListener('click', (e) => {
-        if (e.target.classList.contains('modal')) {
-          e.target.style.display = 'none';
-        }
-      });
-      
-      map.on('movestart', () => {
-        shouldUpdateMapView = false;
-      });
-    });
+        return nearest;
+      } catch (e) {
+        console.error('Error:', e);
+        return null;
+      }
+    }
     
-    async function toggleSystemMode() {
-      const newMode = currentSystemMode === 'test' ? 'election' : 'test';
-      
-      const confirmMsg = newMode === 'election' 
-        ? '⚠️ האם להעביר למצב יום בחירות?\n\nהמערכת תהיה פעילה לכל הבוחרים!'
-        : '⚠️ האם להעביר למצב ניסוי?\n\nזה מצב הדגמה בלבד.';
-      
-      if (!confirm(confirmMsg)) return;
+    async function markAsVoted() {
+      if (hasVoted || !voterId) return;
       
       try {
-        const res = await fetch('/api/admin/system-mode', {
+        const res = await fetch('/api/admin/voters/update', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mode: newMode })
+          body: JSON.stringify({ id: voterId, voted: true })
         });
         
         if (res.ok) {
-          currentSystemMode = newMode;
-          updateSystemModeBanner(newMode);
-          alert('✅ המצב שונה בהצלחה!');
+          hasVoted = true;
+          showSuccessMessage();
         }
       } catch (e) {
-        alert('❌ שגיאה: ' + e.message);
+        console.error('Error:', e);
       }
     }
     
-    function updateSystemModeBanner(mode) {
-      const banner = document.getElementById('systemModeBanner');
-      const modeText = document.getElementById('modeText');
-      const modeSubtitle = document.getElementById('modeSubtitle');
+    function showSuccessMessage() {
+      document.getElementById('trackingStatus').classList.add('hidden');
+      document.getElementById('successMessage').classList.remove('hidden');
       
-      if (mode === 'election') {
-        banner.className = 'system-mode-banner election';
-        banner.querySelector('.mode-icon').textContent = '✅';
-        modeText.textContent = 'מערכת פעילה - יום הבחירות';
-        modeSubtitle.textContent = 'המערכת פעילה לכל הבוחרים - לחץ לחזרה למצב ניסוי';
-      } else {
-        banner.className = 'system-mode-banner test';
-        banner.querySelector('.mode-icon').textContent = '⚠️';
-        modeText.textContent = 'מצב ניסוי כלים';
-        modeSubtitle.textContent = 'נא לכבות בסוף כל ניסוי - לחץ להחלפת מצב';
+      if (watchId) {
+        navigator.geolocation.clearWatch(watchId);
       }
+      
+      playAlert();
+      vibrate();
     }
     
-    function initMap() {
-      map = L.map('map').setView([32.0853, 34.7818], 12);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap'
-      }).addTo(map);
-    }
-    
-    async function loadData() {
-      try {
-        const resp = await fetch('/api/admin/data');
-        data = await resp.json();
-        
-        if (data.systemMode !== currentSystemMode) {
-          currentSystemMode = data.systemMode;
-          updateSystemModeBanner(currentSystemMode);
+    function trackPosition(position) {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      
+      findNearestPoll(lat, lng).then(poll => {
+        if (!poll) {
+          document.getElementById('distanceDisplay').textContent = 'לא נמצאו קלפיות';
+          return;
         }
         
-        updateStats();
-        updateMap();
-        updateTable();
+        nearestPoll = poll;
+        const distance = poll.distance;
         
-        document.getElementById('defaultRadiusText').textContent = data.defaultRadius || 20;
-        document.getElementById('lastUpdate').textContent = 
-          new Date().toLocaleTimeString('he-IL');
-      } catch (e) {
-        console.error('Error loading data:', e);
-      }
-    }
-    
-    function updateStats() {
-      document.getElementById('statVoted').textContent = data.votedCount;
-      document.getElementById('statTotal').textContent = data.totalVoters;
-      document.getElementById('statPercentage').textContent = data.votedPercentage + '%';
-      document.getElementById('statPolls').textContent = data.polls.length;
-      document.getElementById('statEvents').textContent = data.recentEvents.length;
-      document.getElementById('progressVoted').style.width = data.votedPercentage + '%';
-    }
-    
-    function updateMap() {
-      markers.forEach(marker => map.removeLayer(marker));
-      markers = [];
-      
-      data.polls.forEach(poll => {
-        const marker = L.marker([parseFloat(poll.lat), parseFloat(poll.lng)]).addTo(map);
-        marker.bindPopup(`
-          <b>${poll.name}</b><br>
-          ${poll.address || ''}<br>
-          📏 רדיוס: ${poll.radius || 20} מטר<br>
-          הצביעו: ${poll.voted} / ${poll.totalVoters}<br>
-          אחוז: ${poll.percentage}%
-        `);
-        markers.push(marker);
+        document.getElementById('distanceDisplay').textContent = 
+          `${Math.round(distance)} מטר מהקלפי`;
+        
+        document.getElementById('pollInfo').textContent = 
+          `קלפי הכי קרובה: ${poll.name}`;
+        
+        const pollRadius = poll.radius || 20;
+        if (distance <= pollRadius && !hasVoted) {
+          if (lastDistance === null || lastDistance > pollRadius) {
+            markAsVoted();
+          }
+        }
+        
+        lastDistance = distance;
       });
-      
-      if (data.polls.length > 0 && shouldUpdateMapView) {
-        const bounds = L.latLngBounds(data.polls.map(p => [parseFloat(p.lat), parseFloat(p.lng)]));
-        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 13 });
-      }
     }
     
-    function updateTable() {
-      const tbody = document.getElementById('votersBody');
+    document.getElementById('voterForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
       
-      if (data.voters.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">אין בוחרים במערכת</td></tr>';
+      const name = document.getElementById('voterName').value;
+      const idNumber = document.getElementById('voterIdNumber').value;
+      
+      if (!name || !idNumber) {
+        alert('אנא מלא את כל השדות');
         return;
       }
       
-      let html = '';
-      data.voters.forEach((voter, idx) => {
-        const badge = voter.voted 
-          ? '<span class="badge badge-success">✅ הצביע</span>'
-          : '<span class="badge badge-pending">⏳ טרם הצביע</span>';
-        
-        const poll = data.polls.find(p => p.id === voter.pollId);
-        const radius = poll ? poll.radius : 20;
-        
-        html += `
-          <tr>
-            <td>${idx + 1}</td>
-            <td>${voter.name}</td>
-            <td>${voter.pollName}</td>
-            <td>${radius}</td>
-            <td>${badge}</td>
-            <td>${voter.votedAt || '-'}</td>
-          </tr>
-        `;
-      });
-      
-      tbody.innerHTML = html;
-    }
-    
-    function updateDateTime() {
-      const now = new Date();
-      
-      const dateStr = now.toLocaleDateString('he-IL', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-      document.getElementById('currentDate').textContent = dateStr;
-      
-      const endTime = new Date(now);
-      endTime.setHours(22, 0, 0, 0);
-      
-      const diff = endTime - now;
-      
-      if (diff > 0) {
-        const hours = Math.floor(diff / 3600000);
-        const minutes = Math.floor((diff % 3600000) / 60000);
-        const seconds = Math.floor((diff % 60000) / 1000);
-        
-        document.getElementById('countdown').textContent = 
-          `${hours} שעות ${minutes} דקות ${seconds} שניות`;
-      } else {
-        document.getElementById('countdown').textContent = 'הקלפיות נסגרו';
+      if (!navigator.geolocation) {
+        alert('הדפדפן שלך לא תומך במיקום GPS');
+        return;
       }
-    }
+      
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('submitBtn').textContent = 'מאתר מיקום...';
+      
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          
+          const poll = await findNearestPoll(lat, lng);
+          
+          if (!poll) {
+            alert('לא נמצאו קלפיות במערכת');
+            document.getElementById('submitBtn').disabled = false;
+            document.getElementById('submitBtn').textContent = '📍 הצטרף והפעל מעקב מיקום';
+            return;
+          }
+          
+          try {
+            const res = await fetch('/api/admin/voters/add', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name, idNumber, pollId: poll.id })
+            });
+            
+            const data = await res.json();
+            
+            if (data.success) {
+              voterId = data.voter.id;
+              
+              document.getElementById('registrationForm').classList.add('hidden');
+              document.getElementById('trackingStatus').classList.remove('hidden');
+              
+              watchId = navigator.geolocation.watchPosition(
+                trackPosition,
+                (error) => {
+                  console.error('GPS error:', error);
+                  alert('שגיאה בקבלת מיקום');
+                },
+                {
+                  enableHighAccuracy: true,
+                  maximumAge: 5000,
+                  timeout: 10000
+                }
+              );
+            } else {
+              alert('שגיאה ברישום');
+              document.getElementById('submitBtn').disabled = false;
+              document.getElementById('submitBtn').textContent = '📍 הצטרף והפעל מעקב מיקום';
+            }
+          } catch (e) {
+            alert('שגיאה בחיבור לשרת');
+            document.getElementById('submitBtn').disabled = false;
+            document.getElementById('submitBtn').textContent = '📍 הצטרף והפעל מעקב מיקום';
+          }
+        },
+        (error) => {
+          alert('לא ניתן לקבל מיקום. אנא אפשר גישה למיקום בהגדרות הדפדפן.');
+          document.getElementById('submitBtn').disabled = false;
+          document.getElementById('submitBtn').textContent = '📍 הצטרף והפעל מעקב מיקום';
+        }
+      );
+    });
   </script>
 </body>
 </html>
