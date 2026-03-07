@@ -21,6 +21,37 @@
       box-shadow: 0 20px 60px rgba(0,0,0,0.3); 
       overflow: hidden; 
     }
+    .system-mode-banner {
+      padding: 20px 40px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      border-bottom: 3px solid rgba(0,0,0,0.1);
+    }
+    .system-mode-banner.test {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #78350f;
+    }
+    .system-mode-banner.election {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+    }
+    .system-mode-banner:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .mode-icon {
+      font-size: 24px;
+      margin-left: 10px;
+    }
+    .mode-subtitle {
+      font-size: 14px;
+      font-weight: 400;
+      margin-top: 5px;
+      opacity: 0.9;
+    }
     .header { 
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
       color: white; 
@@ -79,6 +110,13 @@
       opacity: 0.95;
       min-width: 180px;
     }
+    .radius-display {
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 8px;
+      font-size: 14px;
+    }
     .actions-bar { 
       background: #f8f9fa; 
       padding: 20px 40px; 
@@ -120,6 +158,17 @@
     .btn-outline:hover {
       background: #667eea;
       color: white;
+    }
+    .export-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .export-label {
+      font-weight: 700;
+      color: #374151;
+      font-size: 14px;
     }
     .section-header { 
       background: white; 
@@ -238,8 +287,6 @@
       padding: 60px 20px; 
       color: #6b7280; 
     }
-    
-    /* Modal styles */
     .modal {
       display: none;
       position: fixed;
@@ -285,6 +332,11 @@
       outline: none;
       border-color: #667eea;
     }
+    .form-group .help-text {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 5px;
+    }
     .modal-actions {
       display: flex;
       gap: 10px;
@@ -316,6 +368,14 @@
 </head>
 <body>
   <div class="container">
+    <div class="system-mode-banner test" id="systemModeBanner">
+      <div>
+        <span class="mode-icon">⚠️</span>
+        <span id="modeText">מצב ניסוי כלים</span>
+      </div>
+      <div class="mode-subtitle" id="modeSubtitle">נא לכבות בסוף כל ניסוי - לחץ להחלפת מצב</div>
+    </div>
+    
     <div class="header">
       <div class="header-content">
         <div class="party-logo">
@@ -333,8 +393,11 @@
         </div>
         
         <div class="header-info">
-          <div><strong>רדיוס זיהוי:</strong> <span id="radiusText">10</span> מטר</div>
-          <div><strong>עדכון אחרון:</strong> <span id="lastUpdate">--:--:--</span></div>
+          <div><strong>רדיוס ברירת מחדל:</strong> <span id="defaultRadiusText">20</span> מטר</div>
+          <div class="radius-display">
+            📏 ניתן לשנות לכל קלפי בנפרד
+          </div>
+          <div style="margin-top: 10px;"><strong>עדכון אחרון:</strong> <span id="lastUpdate">--:--:--</span></div>
         </div>
       </div>
     </div>
@@ -343,8 +406,14 @@
       <button class="btn btn-primary" id="btnAddVoter">➕ הוסף בוחר</button>
       <button class="btn btn-primary" id="btnAddPoll">📍 הוסף קלפי</button>
       <button class="btn btn-success" id="btnSetCurrentLocation">📍 קבע מיקום נוכחי כקלפי</button>
-      <button class="btn btn-success" id="btnExportVoted">📥 יצוא מי הצביע</button>
       <button class="btn btn-outline" id="btnRefresh">🔄 רענן נתונים</button>
+      
+      <div class="export-group">
+        <span class="export-label">ייצוא נתונים:</span>
+        <button class="btn btn-success" id="btnExportVoted">📥 הצביעו</button>
+        <button class="btn btn-success" id="btnExportNotVoted">📥 טרם הצביעו</button>
+        <button class="btn btn-success" id="btnExportAll">📥 כולם</button>
+      </div>
     </div>
     
     <div class="section-header">
@@ -389,31 +458,31 @@
             <th>#</th>
             <th>שם</th>
             <th>קלפי</th>
+            <th>רדיוס (מ')</th>
             <th>הצביע?</th>
             <th>שעה</th>
           </tr>
         </thead>
         <tbody id="votersBody">
           <tr>
-            <td colspan="5" class="empty-state">טוען נתונים...</td>
+            <td colspan="6" class="empty-state">טוען נתונים...</td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
   
-  <!-- Modal for adding voter -->
   <div id="voterModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">➕ הוסף בוחר חדש</div>
       <form id="voterForm">
         <div class="form-group">
           <label>שם הבוחר *</label>
-          <input type="text" id="voterName" required>
+          <input type="text" id="voterName" required placeholder="הכנס שם מלא">
         </div>
         <div class="form-group">
           <label>מספר ת.ז (אופציונלי)</label>
-          <input type="text" id="voterIdNumber">
+          <input type="text" id="voterIdNumber" placeholder="הכנס ת.ז" maxlength="9">
         </div>
         <div class="form-group">
           <label>בחר קלפי *</label>
@@ -429,11 +498,39 @@
     </div>
   </div>
   
+  <div id="pollModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">📍 הוסף קלפי חדשה</div>
+      <form id="pollForm">
+        <div class="form-group">
+          <label>שם הקלפי *</label>
+          <input type="text" id="pollName" required placeholder="לדוגמה: קלפי מרכז העיר">
+        </div>
+        <div class="form-group">
+          <label>כתובת מדויקת *</label>
+          <input type="text" id="pollAddress" required placeholder="לדוגמה: רחוב הרצל 10, תל אביב">
+          <div class="help-text">המערכת תמיר את הכתובת למיקום על המפה אוטומטית</div>
+        </div>
+        <div class="form-group">
+          <label>📏 רדיוס זיהוי (מטרים) *</label>
+          <input type="number" id="pollRadius" value="20" min="5" max="100" required>
+          <div class="help-text">המרחק המקסימלי לזיהוי הצבעה (ברירת מחדל: 20 מטר)</div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" id="btnCancelPoll">ביטול</button>
+          <button type="submit" class="btn-submit">הוסף קלפי</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     let data = null;
     let map = null;
     let markers = [];
+    let shouldUpdateMapView = true;
+    let currentSystemMode = 'test';
     
     document.addEventListener('DOMContentLoaded', () => {
       initMap();
@@ -442,41 +539,68 @@
       updateDateTime();
       setInterval(updateDateTime, 1000);
       
-      // Refresh button
+      document.getElementById('systemModeBanner').addEventListener('click', toggleSystemMode);
+      
       document.getElementById('btnRefresh').addEventListener('click', () => {
+        shouldUpdateMapView = false;
         loadData();
         alert('הנתונים רוענו בהצלחה! ✅');
       });
       
-      // Export button
       document.getElementById('btnExportVoted').addEventListener('click', () => {
         window.location.href = '/api/admin/export/voted';
       });
       
-      // Add poll button
-      document.getElementById('btnAddPoll').addEventListener('click', async () => {
-        const name = prompt('שם הקלפי:');
-        if (!name) return;
+      document.getElementById('btnExportNotVoted').addEventListener('click', () => {
+        window.location.href = '/api/admin/export/not-voted';
+      });
+      
+      document.getElementById('btnExportAll').addEventListener('click', () => {
+        window.location.href = '/api/admin/export/all';
+      });
+      
+      document.getElementById('btnAddPoll').addEventListener('click', () => {
+        document.getElementById('pollModal').style.display = 'block';
+      });
+      
+      document.getElementById('btnCancelPoll').addEventListener('click', () => {
+        document.getElementById('pollModal').style.display = 'none';
+        document.getElementById('pollForm').reset();
+      });
+      
+      document.getElementById('pollForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
         
-        const address = prompt('כתובת:');
+        const name = document.getElementById('pollName').value;
+        const address = document.getElementById('pollAddress').value;
+        const radius = parseInt(document.getElementById('pollRadius').value);
+        
+        const submitBtn = e.target.querySelector('.btn-submit');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'ממיר כתובת...';
         
         try {
           const res = await fetch('/api/admin/polls/add', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, address })
+            body: JSON.stringify({ name, address, radius })
           });
           
           if (res.ok) {
             alert('✅ קלפי נוספה בהצלחה!');
+            document.getElementById('pollModal').style.display = 'none';
+            document.getElementById('pollForm').reset();
+            shouldUpdateMapView = true;
             loadData();
           }
         } catch (e) {
           alert('❌ שגיאה: ' + e.message);
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'הוסף קלפי';
         }
       });
       
-      // Set current location as poll
       document.getElementById('btnSetCurrentLocation').addEventListener('click', () => {
         if (!navigator.geolocation) {
           alert('❌ הדפדפן שלך לא תומך ב-GPS');
@@ -485,6 +609,9 @@
         
         const name = prompt('שם הקלפי:');
         if (!name) return;
+        
+        const radiusInput = prompt('רדיוס זיהוי (מטרים):', '20');
+        const radius = parseInt(radiusInput) || 20;
         
         navigator.geolocation.getCurrentPosition(
           async (position) => {
@@ -496,12 +623,14 @@
                   name, 
                   address: 'מיקום נוכחי',
                   lat: position.coords.latitude,
-                  lng: position.coords.longitude
+                  lng: position.coords.longitude,
+                  radius: radius
                 })
               });
               
               if (res.ok) {
                 alert('✅ קלפי נוספה במיקום הנוכחי!');
+                shouldUpdateMapView = true;
                 loadData();
               }
             } catch (e) {
@@ -514,7 +643,6 @@
         );
       });
       
-      // Add voter button - open modal
       document.getElementById('btnAddVoter').addEventListener('click', async () => {
         await loadData();
         
@@ -523,27 +651,23 @@
           return;
         }
         
-        // Populate poll select
         const select = document.getElementById('voterPoll');
         select.innerHTML = '<option value="">-- בחר קלפי --</option>';
         data.polls.forEach(poll => {
           const option = document.createElement('option');
           option.value = poll.id;
-          option.textContent = poll.name;
+          option.textContent = `${poll.name} (רדיוס: ${poll.radius}מ')`;
           select.appendChild(option);
         });
         
-        // Show modal
         document.getElementById('voterModal').style.display = 'block';
       });
       
-      // Cancel voter
       document.getElementById('btnCancelVoter').addEventListener('click', () => {
         document.getElementById('voterModal').style.display = 'none';
         document.getElementById('voterForm').reset();
       });
       
-      // Submit voter form
       document.getElementById('voterForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -569,15 +693,60 @@
         }
       });
       
-      // Close modal when clicking outside
       window.addEventListener('click', (e) => {
-        const modal = document.getElementById('voterModal');
-        if (e.target === modal) {
-          modal.style.display = 'none';
-          document.getElementById('voterForm').reset();
+        if (e.target.classList.contains('modal')) {
+          e.target.style.display = 'none';
         }
       });
+      
+      map.on('movestart', () => {
+        shouldUpdateMapView = false;
+      });
     });
+    
+    async function toggleSystemMode() {
+      const newMode = currentSystemMode === 'test' ? 'election' : 'test';
+      
+      const confirmMsg = newMode === 'election' 
+        ? '⚠️ האם להעביר למצב יום בחירות?\n\nהמערכת תהיה פעילה לכל הבוחרים!'
+        : '⚠️ האם להעביר למצב ניסוי?\n\nזה מצב הדגמה בלבד.';
+      
+      if (!confirm(confirmMsg)) return;
+      
+      try {
+        const res = await fetch('/api/admin/system-mode', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode: newMode })
+        });
+        
+        if (res.ok) {
+          currentSystemMode = newMode;
+          updateSystemModeBanner(newMode);
+          alert('✅ המצב שונה בהצלחה!');
+        }
+      } catch (e) {
+        alert('❌ שגיאה: ' + e.message);
+      }
+    }
+    
+    function updateSystemModeBanner(mode) {
+      const banner = document.getElementById('systemModeBanner');
+      const modeText = document.getElementById('modeText');
+      const modeSubtitle = document.getElementById('modeSubtitle');
+      
+      if (mode === 'election') {
+        banner.className = 'system-mode-banner election';
+        banner.querySelector('.mode-icon').textContent = '✅';
+        modeText.textContent = 'מערכת פעילה - יום הבחירות';
+        modeSubtitle.textContent = 'המערכת פעילה לכל הבוחרים - לחץ לחזרה למצב ניסוי';
+      } else {
+        banner.className = 'system-mode-banner test';
+        banner.querySelector('.mode-icon').textContent = '⚠️';
+        modeText.textContent = 'מצב ניסוי כלים';
+        modeSubtitle.textContent = 'נא לכבות בסוף כל ניסוי - לחץ להחלפת מצב';
+      }
+    }
     
     function initMap() {
       map = L.map('map').setView([32.0853, 34.7818], 12);
@@ -592,10 +761,16 @@
         const resp = await fetch('/api/admin/data');
         data = await resp.json();
         
+        if (data.systemMode !== currentSystemMode) {
+          currentSystemMode = data.systemMode;
+          updateSystemModeBanner(currentSystemMode);
+        }
+        
         updateStats();
         updateMap();
         updateTable();
         
+        document.getElementById('defaultRadiusText').textContent = data.defaultRadius || 20;
         document.getElementById('lastUpdate').textContent = 
           new Date().toLocaleTimeString('he-IL');
       } catch (e) {
@@ -610,7 +785,6 @@
       document.getElementById('statPolls').textContent = data.polls.length;
       document.getElementById('statEvents').textContent = data.recentEvents.length;
       document.getElementById('progressVoted').style.width = data.votedPercentage + '%';
-      document.getElementById('radiusText').textContent = data.radius;
     }
     
     function updateMap() {
@@ -622,15 +796,16 @@
         marker.bindPopup(`
           <b>${poll.name}</b><br>
           ${poll.address || ''}<br>
+          📏 רדיוס: ${poll.radius || 20} מטר<br>
           הצביעו: ${poll.voted} / ${poll.totalVoters}<br>
           אחוז: ${poll.percentage}%
         `);
         markers.push(marker);
       });
       
-      if (data.polls.length > 0) {
+      if (data.polls.length > 0 && shouldUpdateMapView) {
         const bounds = L.latLngBounds(data.polls.map(p => [parseFloat(p.lat), parseFloat(p.lng)]));
-        map.fitBounds(bounds, { padding: [50, 50] });
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 13 });
       }
     }
     
@@ -638,7 +813,7 @@
       const tbody = document.getElementById('votersBody');
       
       if (data.voters.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">אין בוחרים במערכת</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">אין בוחרים במערכת</td></tr>';
         return;
       }
       
@@ -648,11 +823,15 @@
           ? '<span class="badge badge-success">✅ הצביע</span>'
           : '<span class="badge badge-pending">⏳ טרם הצביע</span>';
         
+        const poll = data.polls.find(p => p.id === voter.pollId);
+        const radius = poll ? poll.radius : 20;
+        
         html += `
           <tr>
             <td>${idx + 1}</td>
             <td>${voter.name}</td>
             <td>${voter.pollName}</td>
+            <td>${radius}</td>
             <td>${badge}</td>
             <td>${voter.votedAt || '-'}</td>
           </tr>
