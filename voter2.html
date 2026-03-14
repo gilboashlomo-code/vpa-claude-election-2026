@@ -1,129 +1,467 @@
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const https = require('https');
-const app = express();
-const PORT = 3000;
-
-app.use(express.json());
-app.use(express.static('.'));
-
-const DATA_FILE = path.join(__dirname, 'data.json');
-
-let voters = [];
-let polls = [];
-let nextVoterId = 1;
-let nextPollId = 1;
-const DEFAULT_RADIUS = 20;
-let systemMode = 'test';
-
-function loadData() {
-  try {
-    if (fs.existsSync(DATA_FILE)) {
-      const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-      voters = data.voters || [];
-      polls = data.polls || [];
-      nextVoterId = data.nextVoterId || 1;
-      nextPollId = data.nextPollId || 1;
-      systemMode = data.systemMode || 'test';
-      console.log('✅ Data loaded from file');
-      console.log('🔧 System mode:', systemMode === 'test' ? 'Test/Demo' : 'Election Day');
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VPA - הצבעה</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+      min-height: 100vh; 
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
-  } catch (err) {
-    console.error('❌ Error loading data:', err);
-  }
-}
-
-function saveData() {
-  try {
-    const data = {
-      voters,
-      polls,
-      nextVoterId,
-      nextPollId,
-      systemMode
-    };
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
-    console.log('💾 Data saved to file');
-  } catch (err) {
-    console.error('❌ Error saving data:', err);
-  }
-}
-
-async function geocodeAddress(address) {
-  return new Promise((resolve, reject) => {
-    const encodedAddress = encodeURIComponent(address + ', Israel');
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}&limit=1`;
+    .container { 
+      background: white; 
+      border-radius: 20px; 
+      padding: 40px 30px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3); 
+      text-align: center;
+    }
+    .logo {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: 28px;
+      color: #1f2937;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      font-size: 16px;
+      color: #6b7280;
+      margin-bottom: 30px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+      text-align: right;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #374151;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      font-size: 16px;
+      text-align: right;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    .btn {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: transform 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .status {
+      margin-top: 30px;
+      padding: 20px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .status.tracking {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    .status.success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .distance {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 20px 0;
+      color: #667eea;
+    }
+    .hidden {
+      display: none;
+    }
+    .message-box {
+      margin-top: 20px;
+      padding: 20px;
+      background: #f3f4f6;
+      border-radius: 12px;
+    }
     
-    https.get(url, {
-      headers: {
-        'User-Agent': 'VPA-Election-System/1.0'
-      }
-    }, (res) => {
-      let data = '';
-      res.on('data', (chunk) => { data += chunk; });
-      res.on('end', () => {
-        try {
-          const results = JSON.parse(data);
-          if (results && results.length > 0) {
-            resolve({ lat: parseFloat(results[0].lat), lng: parseFloat(results[0].lon) });
-          } else {
-            resolve(null);
-          }
-        } catch (e) {
-          resolve(null);
-        }
-      });
-    }).on('error', () => { resolve(null); });
-  });
-}
-
-loadData();
-
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
-});
-
-app.get('/admin', (req, res) => {
-  res.sendFile(__dirname + '/admin.html');
-});
-
-app.get('/api/admin/data', (req, res) => {
-  const votedCount = voters.filter(v => v.voted).length;
-  const totalVoters = voters.length;
-  const votedPercentage = totalVoters > 0 ? ((votedCount / totalVoters) * 100).toFixed(1) : 0;
+    /* מסך התראה מלא */
+    .alert-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      animation: pulse 1s infinite;
+    }
+    
+    .alert-overlay.active {
+      display: flex;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+    
+    .alert-content {
+      text-align: center;
+      color: white;
+      padding: 40px;
+    }
+    
+    .alert-icon {
+      font-size: 120px;
+      margin-bottom: 20px;
+      animation: bounce 0.5s infinite;
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+    
+    .alert-title {
+      font-size: 48px;
+      font-weight: 900;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .alert-message {
+      font-size: 24px;
+      margin-bottom: 30px;
+    }
+    
+    .alert-btn {
+      padding: 20px 60px;
+      background: white;
+      color: #dc2626;
+      border: none;
+      border-radius: 16px;
+      font-size: 24px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="alert-overlay" id="alertOverlay">
+    <div class="alert-content">
+      <div class="alert-icon">🗳️</div>
+      <div class="alert-title">הגעת לקלפי!</div>
+      <div class="alert-message">זמן להצביע עכשיו!</div>
+      <button class="alert-btn" onclick="closeAlert()">הבנתי ✓</button>
+    </div>
+  </div>
   
-  const pollsWithStats = polls.map(poll => {
-    const pollVoters = voters.filter(v => v.pollId === poll.id);
-    const pollVoted = pollVoters.filter(v => v.voted).length;
-    return {
-      ...poll,
-      totalVoters: pollVoters.length,
-      voted: pollVoted,
-      percentage: pollVoters.length > 0 ? ((pollVoted / pollVoters.length) * 100).toFixed(1) : 0
-    };
-  });
-
-  res.json({
-    voters: voters.map(v => ({
-      ...v,
-      pollName: polls.find(p => p.id === v.pollId)?.name || 'לא משויך'
-    })),
-    polls: pollsWithStats,
-    votedCount,
-    totalVoters,
-    votedPercentage,
-    defaultRadius: DEFAULT_RADIUS,
-    systemMode,
-    recentEvents: voters.filter(v => v.voted).slice(-10).reverse()
-  });
-});
-
-app.post('/api/admin/system-mode', (req, res) => {
-  const { mode } = req.body;
-  if (mode !== 'test' && mode !== 'election') {
-    return res.status(400).json({ error: 'Invalid mode' });
-  }
-  systemMode = mode;
-  saveData();
-  res.json({ success: true, mode: system
+  <div class="container">
+    <div class="logo">🗳️</div>
+    <h1>מערכת הצבעה VPA</h1>
+    <p class="subtitle">ברוכים הבאים למערכת המעקב</p>
+    
+    <div id="registrationForm">
+      <form id="voterForm">
+        <div class="form-group">
+          <label>שם מלא *</label>
+          <input type="text" id="voterName" required placeholder="הכנס שם מלא">
+        </div>
+        <div class="form-group">
+          <label>מספר ת.ז *</label>
+          <input type="text" id="voterIdNumber" required placeholder="הכנס ת.ז" maxlength="9">
+        </div>
+        <button type="submit" class="btn" id="submitBtn">
+          📍 הצטרף והפעל מעקב מיקום
+        </button>
+      </form>
+    </div>
+    
+    <div id="trackingStatus" class="hidden">
+      <div class="status tracking">
+        <div>📡 מעקב פעיל</div>
+        <div style="margin-top: 10px; font-size: 14px;">המערכת עוקבת אחרי המיקום שלך</div>
+      </div>
+      
+      <div class="distance" id="distanceDisplay">
+        מחשב מרחק...
+      </div>
+      
+      <div id="pollInfo" style="color: #6b7280; font-size: 14px;">
+      </div>
+    </div>
+    
+    <div id="successMessage" class="hidden">
+      <div class="status success">
+        <div style="font-size: 48px; margin-bottom: 10px;">✅</div>
+        <div style="font-size: 24px;">הצבעה נרשמה בהצלחה!</div>
+        <div style="margin-top: 10px; font-size: 14px;">תודה שהשתתפת</div>
+      </div>
+      
+      <div id="messageBox" class="message-box">
+        <h3 style="color: #1f2937; margin-bottom: 10px;">תודה שהצבעת!</h3>
+        <p style="color: #6b7280;">למידע נוסף, בקר באתר המפלגה</p>
+      </div>
+    </div>
+  </div>
+  
+  <audio id="alertSound" preload="auto">
+    <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwPUKbk77FgGwU7k9jyyHgpBSl+zPDbj0AKElyw6OyrWBUIQ5zd8r1pHgUsgs/y14k1CBpqvfDjm0wMDlCl5O+wYBwGOpPY8sh4KQUpf8zx3I9AChJcr+jqrFgVCEKc3fK8aB4FLIHu8tiJNQgaaL3v45tMDA9QpuvwrmkdBjqT2PLIeCkFKX/M8dyPQAoSXK/o6qxYFQhCnN3yvGgeBSyB7vLYiTUIG2m98OOaTgwOUKbk8LJoHQY5k9jxyHkqBSh+zPHcj0AKElyw6OusWBUIQ53e8r1pHgUrge/y2Ik1CBpovfDjm0wMD1Cm5PCyaB0GOZPm8sp5KQUofsrw3I9AChJcr+jqrFgVCEOd3vK9aR4FK4Hv8tiJNQgaaL3w45tMDA9Qpuvwrmkd=" type="audio/wav">
+  </audio>
+  
+  <script>
+    let watchId = null;
+    let voterId = null;
+    let nearestPoll = null;
+    let hasVoted = false;
+    let lastDistance = null;
+    let alertInterval = null;
+    
+    function closeAlert() {
+      document.getElementById('alertOverlay').classList.remove('active');
+      if (alertInterval) {
+        clearInterval(alertInterval);
+        alertInterval = null;
+      }
+    }
+    
+    function showAlert() {
+      document.getElementById('alertOverlay').classList.add('active');
+      vibrate();
+      playAlert();
+      
+      // חזור על הרטט והצלצול כל 3 שניות
+      alertInterval = setInterval(() => {
+        vibrate();
+        playAlert();
+      }, 3000);
+    }
+    
+    function vibrate() {
+      if ('vibrate' in navigator) {
+        // רטט ארוך וחזק - 5 פעמים
+        navigator.vibrate([500, 200, 500, 200, 500, 200, 500, 200, 500]);
+      }
+    }
+    
+    function playAlert() {
+      const audio = document.getElementById('alertSound');
+      audio.volume = 1.0;
+      audio.play().catch(e => console.log('Audio play failed:', e));
+    }
+    
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371e3;
+      const φ1 = lat1 * Math.PI / 180;
+      const φ2 = lat2 * Math.PI / 180;
+      const Δφ = (lat2 - lat1) * Math.PI / 180;
+      const Δλ = (lon2 - lon1) * Math.PI / 180;
+      
+      const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                Math.cos(φ1) * Math.cos(φ2) *
+                Math.sin(Δλ/2) * Math.sin(Δλ/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      
+      return R * c;
+    }
+    
+    async function findNearestPoll(lat, lng) {
+      try {
+        const res = await fetch('/api/admin/data');
+        const data = await res.json();
+        
+        if (data.polls.length === 0) return null;
+        
+        let nearest = null;
+        let minDistance = Infinity;
+        
+        data.polls.forEach(poll => {
+          const distance = calculateDistance(
+            lat, lng,
+            parseFloat(poll.lat), parseFloat(poll.lng)
+          );
+          
+          if (distance < minDistance) {
+            minDistance = distance;
+            nearest = { ...poll, distance };
+          }
+        });
+        
+        return nearest;
+      } catch (e) {
+        console.error('Error:', e);
+        return null;
+      }
+    }
+    
+    async function markAsVoted() {
+      if (hasVoted || !voterId) return;
+      
+      try {
+        const res = await fetch('/api/admin/voters/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: voterId, voted: true })
+        });
+        
+        if (res.ok) {
+          hasVoted = true;
+          showSuccessMessage();
+        }
+      } catch (e) {
+        console.error('Error:', e);
+      }
+    }
+    
+    function showSuccessMessage() {
+      document.getElementById('trackingStatus').classList.add('hidden');
+      document.getElementById('successMessage').classList.remove('hidden');
+      
+      if (watchId) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+    }
+    
+    function trackPosition(position) {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      
+      findNearestPoll(lat, lng).then(poll => {
+        if (!poll) {
+          document.getElementById('distanceDisplay').textContent = 'לא נמצאו קלפיות';
+          return;
+        }
+        
+        nearestPoll = poll;
+        const distance = poll.distance;
+        
+        document.getElementById('distanceDisplay').textContent = 
+          `${Math.round(distance)} מטר מהקלפי`;
+        
+        document.getElementById('pollInfo').textContent = 
+          `קלפי הכי קרובה: ${poll.name}`;
+        
+        const pollRadius = poll.radius || 20;
+        if (distance <= pollRadius && !hasVoted) {
+          if (lastDistance === null || lastDistance > pollRadius) {
+            showAlert();
+            markAsVoted();
+          }
+        }
+        
+        lastDistance = distance;
+      });
+    }
+    
+    document.getElementById('voterForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const name = document.getElementById('voterName').value;
+      const idNumber = document.getElementById('voterIdNumber').value;
+      
+      if (!name || !idNumber) {
+        alert('אנא מלא את כל השדות');
+        return;
+      }
+      
+      if (!navigator.geolocation) {
+        alert('הדפדפן שלך לא תומך במיקום GPS');
+        return;
+      }
+      
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('submitBtn').textContent = 'מאתר מיקום...';
+      
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          
+          const poll = await findNearestPoll(lat, lng);
+          
+          if (!poll) {
+            alert('לא נמצאו קלפיות במערכת');
+            document.getElementById('submitBtn').disabled = false;
+            document.getElementById('submitBtn').textContent = '📍 הצטרף והפעל מעקב מיקום';
+            return;
+          }
+          
+          try {
+            const res = await fetch('/api/admin/voters/add', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name, idNumber, pollId: poll.id })
+            });
+            
+            const data = await res.json();
+            
+            if (data.success) {
+              voterId = data.voter.id;
+              
+              document.getElementById('registrationForm').classList.add('hidden');
+              document.getElementById('trackingStatus').classList.remove('hidden');
+              
+              watchId = navigator.geolocation.watchPosition(
+                trackPosition,
+                (error) => {
+                  console.error('GPS error:', error);
+                  alert('שגיאה בקבלת מיקום');
+                },
+                {
+                  enableHighAccuracy: true,
+                  maximumAge: 5000,
+                  timeout: 10000
+                }
+              );
+            } else {
+              alert('שגיאה ברישום');
+              document.getElementById('submitBtn').disabled = false;
+              document.getElementById('submitBtn').textContent = '📍 הצטרף והפעל מעקב מיקום';
+            }
+          } catch (e) {
+            alert('שגיאה בחיבור לשרת');
+            document.getElementById('submitBtn').disabled = false;
+            document.getElementById('submitBtn').textContent = '📍 הצטרף והפעל מעקב מיקום';
+          }
+        },
+        (error) => {
+          alert('לא ניתן לקבל מיקום. אנא אפשר גישה למיקום בהגדרות הדפדפן.');
+          document.getElementById('submitBtn').disabled = false;
+          document.getElementById('submitBtn').textContent = '📍 הצטרף והפעל מעקב מיקום';
+        }
+      );
+    });
+  </script>
+</body>
+</html>
