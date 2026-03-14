@@ -61,19 +61,12 @@ async function geocodeAddress(address) {
       }
     }, (res) => {
       let data = '';
-      
-      res.on('data', (chunk) => {
-        data += chunk;
-      });
-      
+      res.on('data', (chunk) => { data += chunk; });
       res.on('end', () => {
         try {
           const results = JSON.parse(data);
           if (results && results.length > 0) {
-            resolve({
-              lat: parseFloat(results[0].lat),
-              lng: parseFloat(results[0].lon)
-            });
+            resolve({ lat: parseFloat(results[0].lat), lng: parseFloat(results[0].lon) });
           } else {
             resolve(null);
           }
@@ -81,9 +74,7 @@ async function geocodeAddress(address) {
           resolve(null);
         }
       });
-    }).on('error', () => {
-      resolve(null);
-    });
+    }).on('error', () => { resolve(null); });
   });
 }
 
@@ -130,16 +121,11 @@ app.get('/api/admin/data', (req, res) => {
 
 app.post('/api/admin/system-mode', (req, res) => {
   const { mode } = req.body;
-  
   if (mode !== 'test' && mode !== 'election') {
     return res.status(400).json({ error: 'Invalid mode' });
   }
-  
   systemMode = mode;
   saveData();
-  
-  console.log('🔄 System mode changed to:', mode === 'test' ? 'Test/Demo' : 'Election Day');
-  
   res.json({ success: true, mode: systemMode });
 });
 
@@ -149,18 +135,35 @@ app.post('/api/admin/reset-all', (req, res) => {
   nextVoterId = 1;
   nextPollId = 1;
   saveData();
-  
-  console.log('🗑️ All data reset');
-  
   res.json({ success: true });
 });
 
+// ✅ תוקן - מניעת כפילויות
 app.post('/api/admin/voters/add', (req, res) => {
   const { name, idNumber, pollId, address, notes } = req.body;
   
   const poll = polls.find(p => p.id === pollId);
   if (!poll) {
     return res.status(400).json({ error: 'קלפי לא נמצאה' });
+  }
+
+  // בדיקה לפי ת"ז
+  if (idNumber && idNumber.trim() !== '') {
+    const existing = voters.find(v => v.idNumber === idNumber.trim());
+    if (existing) {
+      return res.json({ success: true, voter: existing, existing: true });
+    }
+  }
+
+  // בדיקה לפי שם (אם אין ת"ז)
+  if (name && name.trim() !== '') {
+    const existingByName = voters.find(v =>
+      v.name.trim().toLowerCase() === name.trim().toLowerCase() &&
+      v.pollId === pollId
+    );
+    if (existingByName) {
+      return res.json({ success: true, voter: existingByName, existing: true });
+    }
   }
   
   const lat = (parseFloat(poll.lat) + (Math.random() - 0.5) * 0.001).toFixed(6);
@@ -181,7 +184,7 @@ app.post('/api/admin/voters/add', (req, res) => {
   
   voters.push(voter);
   saveData();
-  res.json({ success: true, voter });
+  res.json({ success: true, voter, existing: false });
 });
 
 app.post('/api/admin/polls/add', async (req, res) => {
@@ -191,14 +194,10 @@ app.post('/api/admin/polls/add', async (req, res) => {
   let finalLng = lng;
   
   if (!finalLat && !finalLng && address) {
-    console.log('🔍 Geocoding address:', address);
     const coords = await geocodeAddress(address);
     if (coords) {
       finalLat = coords.lat.toFixed(6);
       finalLng = coords.lng.toFixed(6);
-      console.log('✅ Geocoded successfully:', finalLat, finalLng);
-    } else {
-      console.log('⚠️ Geocoding failed, using default location');
     }
   }
   
@@ -207,15 +206,13 @@ app.post('/api/admin/polls/add', async (req, res) => {
     finalLng = (34.7818 + (Math.random() - 0.5) * 0.05).toFixed(6);
   }
   
-  const finalRadius = radius || DEFAULT_RADIUS;
-  
   const poll = {
     id: nextPollId++,
     name,
     address: address || '',
     lat: finalLat,
     lng: finalLng,
-    radius: finalRadius
+    radius: radius || DEFAULT_RADIUS
   };
   
   polls.push(poll);
@@ -226,35 +223,29 @@ app.post('/api/admin/polls/add', async (req, res) => {
 app.post('/api/admin/polls/update', (req, res) => {
   const { id, radius } = req.body;
   const poll = polls.find(p => p.id === id);
-  
-  if (!poll) {
-    return res.status(404).json({ error: 'קלפי לא נמצאה' });
-  }
-  
-  if (radius !== undefined) {
-    poll.radius = radius;
-  }
-  
+  if (!poll) return res.status(404).json({ error: 'קלפי לא נמצאה' });
+  if (radius !== undefined) poll.radius = radius;
   saveData();
   res.json({ success: true, poll });
 });
 
+// ✅ תוקן - שעת הצבעה בשעון ישראל
 app.post('/api/admin/voters/update', (req, res) => {
   const { id, voted, notes } = req.body;
   const voter = voters.find(v => v.id === id);
-  
-  if (!voter) {
-    return res.status(404).json({ error: 'בוחר לא נמצא' });
-  }
+  if (!voter) return res.status(404).json({ error: 'בוחר לא נמצא' });
   
   if (voted !== undefined) {
     voter.voted = voted;
-    voter.votedAt = voted ? new Date().toLocaleTimeString('he-IL') : null;
+    voter.votedAt = voted ? new Date().toLocaleTimeString('he-IL', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      timeZone: 'Asia/Jerusalem'
+    }) : null;
   }
   
-  if (notes !== undefined) {
-    voter.notes = notes;
-  }
+  if (notes !== undefined) voter.notes = notes;
   
   saveData();
   res.json({ success: true, voter });
@@ -269,11 +260,9 @@ app.post('/api/admin/voters/delete', (req, res) => {
 
 app.post('/api/admin/polls/delete', (req, res) => {
   const { id } = req.body;
-  
   if (voters.some(v => v.pollId === id)) {
     return res.status(400).json({ error: 'לא ניתן למחוק קלפי עם בוחרים משוייכים' });
   }
-  
   polls = polls.filter(p => p.id !== id);
   saveData();
   res.json({ success: true });
@@ -286,7 +275,6 @@ app.get('/api/admin/export/voted', (req, res) => {
       const poll = polls.find(p => p.id === v.pollId);
       return `${v.name},${v.idNumber},${poll?.name || ''},${poll?.id || ''},${v.votedAt}`;
     }).join('\n');
-  
   res.header('Content-Type', 'text/csv; charset=utf-8');
   res.header('Content-Disposition', 'attachment; filename="voted.csv"');
   res.send('\uFEFF' + csv);
@@ -299,7 +287,6 @@ app.get('/api/admin/export/not-voted', (req, res) => {
       const poll = polls.find(p => p.id === v.pollId);
       return `${v.name},${v.idNumber},${poll?.name || ''},${poll?.id || ''}`;
     }).join('\n');
-  
   res.header('Content-Type', 'text/csv; charset=utf-8');
   res.header('Content-Disposition', 'attachment; filename="not-voted.csv"');
   res.send('\uFEFF' + csv);
@@ -312,7 +299,6 @@ app.get('/api/admin/export/all', (req, res) => {
       const status = v.voted ? 'הצביע' : 'טרם הצביע';
       return `${v.name},${v.idNumber},${poll?.name || ''},${poll?.id || ''},${status},${v.votedAt || '-'}`;
     }).join('\n');
-  
   res.header('Content-Type', 'text/csv; charset=utf-8');
   res.header('Content-Disposition', 'attachment; filename="all-voters.csv"');
   res.send('\uFEFF' + csv);
@@ -320,20 +306,13 @@ app.get('/api/admin/export/all', (req, res) => {
 
 app.get('/api/voter/check-proximity', (req, res) => {
   const { lat, lng, voterId } = req.query;
-  
-  if (!lat || !lng || !voterId) {
-    return res.json({ inRange: false });
-  }
+  if (!lat || !lng || !voterId) return res.json({ inRange: false });
   
   const voter = voters.find(v => v.id === parseInt(voterId));
-  if (!voter) {
-    return res.json({ inRange: false });
-  }
+  if (!voter) return res.json({ inRange: false });
   
   const poll = polls.find(p => p.id === voter.pollId);
-  if (!poll) {
-    return res.json({ inRange: false });
-  }
+  if (!poll) return res.json({ inRange: false });
   
   const distance = calculateDistance(
     parseFloat(lat), parseFloat(lng),
@@ -341,10 +320,8 @@ app.get('/api/voter/check-proximity', (req, res) => {
   );
   
   const pollRadius = poll.radius || DEFAULT_RADIUS;
-  const inRange = distance <= pollRadius;
-  
   res.json({
-    inRange,
+    inRange: distance <= pollRadius,
     distance: Math.round(distance),
     pollName: poll.name,
     radius: pollRadius
@@ -357,12 +334,10 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   const φ2 = lat2 * Math.PI / 180;
   const Δφ = (lat2 - lat1) * Math.PI / 180;
   const Δλ = (lon2 - lon1) * Math.PI / 180;
-  
   const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
             Math.cos(φ1) * Math.cos(φ2) *
             Math.sin(Δλ/2) * Math.sin(Δλ/2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  
   return R * c;
 }
 
