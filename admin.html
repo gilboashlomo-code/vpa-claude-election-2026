@@ -11,7 +11,7 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
       min-height: 100vh; 
-      padding: 20px; 
+      padding: 10px; 
     }
     .container { 
       max-width: 1600px; 
@@ -22,9 +22,9 @@
       overflow: hidden; 
     }
     .system-mode-banner {
-      padding: 20px 40px;
+      padding: 12px 20px;
       text-align: center;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.3s;
@@ -38,339 +38,196 @@
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       color: white;
     }
-    .system-mode-banner:hover {
-      transform: scale(1.02);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-    .mode-icon {
-      font-size: 24px;
-      margin-left: 10px;
-    }
     .mode-subtitle {
-      font-size: 14px;
+      font-size: 12px;
       font-weight: 400;
-      margin-top: 5px;
+      margin-top: 4px;
       opacity: 0.9;
     }
     .header { 
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
       color: white; 
-      padding: 30px 40px; 
-      position: relative;
-    }
-    .header-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 40px;
-    }
-    .header-main {
-      flex: 1;
-      text-align: center;
-      padding: 0 20px;
+      padding: 20px; 
     }
     .header h1 { 
-      font-size: 32px; 
+      font-size: 22px; 
       font-weight: 700; 
-      margin-bottom: 15px;
+      margin-bottom: 8px;
+      text-align: center;
     }
     .header-date {
-      font-size: 24px;
+      font-size: 16px;
       font-weight: 600;
-      margin-bottom: 10px;
+      text-align: center;
+      margin-bottom: 6px;
     }
     .header-countdown {
-      font-size: 18px;
-      margin-top: 8px;
+      font-size: 15px;
+      text-align: center;
+      margin-bottom: 6px;
     }
     .header-countdown span {
       font-weight: 700;
-      font-size: 20px;
+    }
+    .header-sub {
+      font-size: 13px;
+      text-align: center;
+      opacity: 0.9;
     }
     .party-logo {
       background: white;
-      padding: 15px 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      padding: 10px 15px;
+      border-radius: 10px;
       text-align: center;
-      min-width: 120px;
-    }
-    .party-logo-icon {
-      font-size: 28px;
-      margin-bottom: 5px;
+      margin: 10px auto;
+      width: fit-content;
     }
     .party-logo-text {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       color: #667eea;
     }
-    .header-info { 
-      text-align: left; 
-      font-size: 14px; 
-      opacity: 0.95;
-      min-width: 180px;
-    }
-    .radius-display {
-      margin-top: 10px;
-      padding: 8px 12px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 8px;
-      font-size: 14px;
-    }
     .actions-bar { 
       background: #f8f9fa; 
-      padding: 20px 40px; 
+      padding: 15px; 
       border-bottom: 2px solid #e9ecef; 
       display: flex; 
-      gap: 10px; 
-      flex-wrap: wrap; 
+      gap: 8px; 
+      flex-wrap: wrap;
+      justify-content: center;
     }
     .btn { 
-      padding: 12px 20px; 
+      padding: 10px 14px; 
       border-radius: 8px; 
       border: none; 
-      font-size: 14px; 
+      font-size: 13px; 
       font-weight: 600; 
       cursor: pointer; 
-      transition: all 0.3s; 
+      transition: all 0.3s;
+      flex: 1;
+      min-width: 120px;
+      max-width: 200px;
     }
-    .btn-primary { 
-      background: #667eea; 
-      color: white; 
-    }
-    .btn-primary:hover { 
-      background: #5568d3; 
-      transform: translateY(-2px); 
-    }
-    .btn-success { 
-      background: #10b981; 
-      color: white; 
-    }
-    .btn-success:hover {
-      background: #059669;
-      transform: translateY(-2px);
-    }
-    .btn-danger { 
-      background: #dc2626; 
-      color: white; 
-    }
-    .btn-danger:hover {
-      background: #b91c1c;
-      transform: translateY(-2px);
-    }
-    .btn-outline { 
-      background: white; 
-      color: #667eea; 
-      border: 2px solid #667eea; 
-    }
-    .btn-outline:hover {
-      background: #667eea;
-      color: white;
-    }
+    .btn-primary { background: #667eea; color: white; }
+    .btn-primary:hover { background: #5568d3; }
+    .btn-success { background: #10b981; color: white; }
+    .btn-success:hover { background: #059669; }
+    .btn-danger { background: #dc2626; color: white; }
+    .btn-danger:hover { background: #b91c1c; }
+    .btn-outline { background: white; color: #667eea; border: 2px solid #667eea; }
+    .btn-outline:hover { background: #667eea; color: white; }
     .export-group {
+      width: 100%;
       display: flex;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
       align-items: center;
+      justify-content: center;
+      margin-top: 5px;
     }
     .export-label {
       font-weight: 700;
       color: #374151;
-      font-size: 14px;
+      font-size: 13px;
+      width: 100%;
+      text-align: center;
     }
     .section-header { 
-      background: white; 
-      padding: 20px 40px; 
+      padding: 15px 20px; 
       border-bottom: 1px solid #e5e7eb; 
     }
     .section-header h2 { 
-      font-size: 22px; 
+      font-size: 18px; 
       font-weight: 700; 
       color: #1f2937; 
     }
     .stats-grid { 
       display: grid; 
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
-      gap: 20px; 
-      padding: 30px 40px; 
+      grid-template-columns: repeat(2, 1fr); 
+      gap: 12px; 
+      padding: 15px; 
       background: #f8f9fa; 
     }
     .stat-card { 
       background: white; 
-      padding: 24px; 
+      padding: 16px; 
       border-radius: 12px; 
       box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
     }
-    .stat-card .label {
-      font-size: 14px;
-      color: #6b7280;
-      margin-bottom: 8px;
-    }
-    .stat-card .value { 
-      font-size: 36px; 
-      font-weight: 700; 
-      color: #1f2937; 
-    }
-    .stat-card.green .value { 
-      color: #10b981; 
-    }
-    .stat-card.blue .value { 
-      color: #3b82f6; 
-    }
-    .stat-card .sub {
-      font-size: 14px;
-      color: #6b7280;
-      margin-top: 8px;
-    }
+    .stat-card .label { font-size: 12px; color: #6b7280; margin-bottom: 6px; }
+    .stat-card .value { font-size: 28px; font-weight: 700; color: #1f2937; }
+    .stat-card.green .value { color: #10b981; }
+    .stat-card.blue .value { color: #3b82f6; }
+    .stat-card .sub { font-size: 12px; color: #6b7280; margin-top: 6px; }
     .progress-bar { 
-      width: 100%; 
-      height: 8px; 
-      background: #e5e7eb; 
-      border-radius: 10px; 
-      overflow: hidden; 
-      margin-top: 12px; 
+      width: 100%; height: 8px; background: #e5e7eb; 
+      border-radius: 10px; overflow: hidden; margin-top: 10px; 
     }
     .progress-fill { 
       height: 100%; 
       background: linear-gradient(90deg, #10b981 0%, #34d399 100%); 
       transition: width 0.5s; 
     }
-    .map-section { 
-      padding: 20px 40px; 
-    }
-    .map-section h3 {
-      font-size: 20px;
-      font-weight: 700;
-      color: #1f2937;
-      margin-bottom: 15px;
-    }
+    .map-section { padding: 15px; }
+    .map-section h3 { font-size: 18px; font-weight: 700; color: #1f2937; margin-bottom: 12px; }
     #map { 
-      height: 500px; 
+      height: 300px; 
       border-radius: 12px; 
       overflow: hidden; 
       box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
     }
     .table-container { 
-      padding: 0 40px 40px 40px; 
+      padding: 0 15px 30px 15px; 
       overflow-x: auto; 
     }
-    table { 
-      width: 100%; 
-      border-collapse: collapse; 
-      background: white; 
-    }
-    thead { 
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-      color: white; 
-    }
-    th { 
-      padding: 14px 12px; 
-      text-align: right; 
-      font-weight: 600; 
-      font-size: 13px; 
-    }
-    td { 
-      padding: 14px 12px; 
-      font-size: 13px; 
-      color: #374151; 
-      border-bottom: 1px solid #f3f4f6; 
-    }
-    .badge { 
-      display: inline-block; 
-      padding: 5px 10px; 
-      border-radius: 20px; 
-      font-size: 11px; 
-      font-weight: 600; 
-    }
-    .badge-success { 
-      background: #d1fae5; 
-      color: #065f46; 
-    }
-    .badge-pending { 
-      background: #fef3c7; 
-      color: #92400e; 
-    }
-    .empty-state { 
-      text-align: center; 
-      padding: 60px 20px; 
-      color: #6b7280; 
-    }
+    table { width: 100%; border-collapse: collapse; background: white; min-width: 400px; }
+    thead { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    th { padding: 10px 8px; text-align: right; font-weight: 600; font-size: 12px; }
+    td { padding: 10px 8px; font-size: 12px; color: #374151; border-bottom: 1px solid #f3f4f6; }
+    .badge { display: inline-block; padding: 4px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; }
+    .badge-success { background: #d1fae5; color: #065f46; }
+    .badge-pending { background: #fef3c7; color: #92400e; }
+    .empty-state { text-align: center; padding: 40px 20px; color: #6b7280; }
     .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
+      display: none; position: fixed; z-index: 1000;
+      left: 0; top: 0; width: 100%; height: 100%;
       background-color: rgba(0,0,0,0.5);
+      overflow-y: auto;
     }
     .modal-content {
       background-color: white;
-      margin: 10% auto;
-      padding: 30px;
+      margin: 20px auto;
+      padding: 25px;
       border-radius: 16px;
-      width: 90%;
+      width: 92%;
       max-width: 500px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     }
-    .modal-header {
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 20px;
-      color: #1f2937;
-    }
-    .form-group {
-      margin-bottom: 20px;
-    }
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: #374151;
-    }
+    .modal-header { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: #1f2937; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: #374151; font-size: 14px; }
     .form-group input, .form-group select {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid #e5e7eb;
-      border-radius: 8px;
-      font-size: 14px;
+      width: 100%; padding: 12px; border: 2px solid #e5e7eb;
+      border-radius: 8px; font-size: 14px;
     }
-    .form-group input:focus, .form-group select:focus {
-      outline: none;
-      border-color: #667eea;
-    }
-    .form-group .help-text {
-      font-size: 12px;
-      color: #6b7280;
-      margin-top: 5px;
-    }
-    .modal-actions {
-      display: flex;
-      gap: 10px;
-      justify-content: flex-end;
-      margin-top: 30px;
-    }
-    .btn-cancel {
-      background: #e5e7eb;
-      color: #374151;
-      padding: 12px 24px;
-      border-radius: 8px;
-      border: none;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .btn-submit {
-      background: #667eea;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 8px;
-      border: none;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .btn-submit:hover {
-      background: #5568d3;
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: #667eea; }
+    .form-group .help-text { font-size: 11px; color: #6b7280; margin-top: 4px; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    .btn-cancel { background: #e5e7eb; color: #374151; padding: 12px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }
+    .btn-submit { background: #667eea; color: white; padding: 12px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }
+    .btn-submit:hover { background: #5568d3; }
+
+    @media (min-width: 768px) {
+      body { padding: 20px; }
+      .header { padding: 30px 40px; }
+      .header h1 { font-size: 32px; }
+      .header-date { font-size: 24px; }
+      .stats-grid { grid-template-columns: repeat(4, 1fr); padding: 30px 40px; }
+      #map { height: 500px; }
+      .actions-bar { padding: 20px 40px; }
+      .btn { min-width: 140px; }
+      .table-container { padding: 0 40px 40px 40px; }
+      th, td { padding: 14px 12px; font-size: 13px; }
     }
   </style>
 </head>
@@ -385,38 +242,22 @@
     </div>
     
     <div class="header">
-      <div class="header-content">
-        <div class="party-logo">
-          <div class="party-logo-icon">🏛️</div>
-          <div class="party-logo-text">מפלגת הדמו</div>
-        </div>
-        
-        <div class="header-main">
-          <h1>🗳️ לוח בקרת הצבעה בקלפיות</h1>
-          <div class="header-date" id="currentDate">טוען...</div>
-          <div class="header-countdown">
-            ⏰ נותרו עוד: <span id="countdown">--:--:--</span>
-          </div>
-          <div style="margin-top: 10px; font-size: 16px;">ניהול יום בחירות בזמן אמת - VPA</div>
-        </div>
-        
-        <div class="header-info">
-          <div><strong>רדיוס ברירת מחדל:</strong> <span id="defaultRadiusText">20</span> מטר</div>
-          <div class="radius-display">
-            📏 ניתן לשנות לכל קלפי בנפרד
-          </div>
-          <div style="margin-top: 10px;"><strong>עדכון אחרון:</strong> <span id="lastUpdate">--:--:--</span></div>
-        </div>
+      <div class="party-logo">
+        <div>🏛️</div>
+        <div class="party-logo-text">מפלגת הדמו</div>
       </div>
+      <h1>🗳️ לוח בקרת הצבעה בקלפיות</h1>
+      <div class="header-date" id="currentDate">טוען...</div>
+      <div class="header-countdown">⏰ נותרו עוד: <span id="countdown">--:--:--</span></div>
+      <div class="header-sub">ניהול יום בחירות בזמן אמת - VPA</div>
     </div>
     
     <div class="actions-bar">
       <button class="btn btn-primary" id="btnAddVoter">➕ הוסף בוחר</button>
       <button class="btn btn-primary" id="btnAddPoll">📍 הוסף קלפי</button>
-      <button class="btn btn-success" id="btnSetCurrentLocation">📍 קבע מיקום נוכחי כקלפי</button>
-      <button class="btn btn-outline" id="btnRefresh">🔄 רענן נתונים</button>
+      <button class="btn btn-success" id="btnSetCurrentLocation">📍 מיקום נוכחי כקלפי</button>
+      <button class="btn btn-outline" id="btnRefresh">🔄 רענן</button>
       <button class="btn btn-danger" id="btnResetAll">🗑️ נקה הכל</button>
-      
       <div class="export-group">
         <span class="export-label">ייצוא נתונים:</span>
         <button class="btn btn-success" id="btnExportVoted">📥 הצביעו</button>
@@ -438,17 +279,14 @@
           <div class="progress-fill" id="progressVoted" style="width: 0%"></div>
         </div>
       </div>
-      
       <div class="stat-card blue">
         <div class="label">📊 אחוז הצבעה</div>
         <div class="value" id="statPercentage">0%</div>
       </div>
-      
       <div class="stat-card">
         <div class="label">🏢 קלפיות</div>
         <div class="value" id="statPolls">0</div>
       </div>
-      
       <div class="stat-card">
         <div class="label">⏰ אירועים</div>
         <div class="value" id="statEvents">0</div>
@@ -467,15 +305,13 @@
             <th>#</th>
             <th>שם</th>
             <th>קלפי</th>
-            <th>רדיוס (מ')</th>
+            <th>רדיוס</th>
             <th>הצביע?</th>
             <th>שעה</th>
           </tr>
         </thead>
         <tbody id="votersBody">
-          <tr>
-            <td colspan="6" class="empty-state">טוען נתונים...</td>
-          </tr>
+          <tr><td colspan="6" class="empty-state">טוען נתונים...</td></tr>
         </tbody>
       </table>
     </div>
@@ -557,216 +393,92 @@
       });
       
       document.getElementById('btnResetAll').addEventListener('click', async () => {
-        if (!confirm('⚠️ האם אתה בטוח שברצונך למחוק את כל הנתונים?\n\nפעולה זו תמחק:\n- כל הקלפיות\n- כל הבוחרים\n- כל נתוני ההצבעה\n\nאי אפשר לשחזר!')) {
-          return;
-        }
-        
+        if (!confirm('⚠️ האם אתה בטוח שברצונך למחוק את כל הנתונים?')) return;
         try {
-          const res = await fetch('/api/admin/reset-all', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-          });
-          
-          if (res.ok) {
-            alert('✅ כל הנתונים נמחקו בהצלחה!');
-            shouldUpdateMapView = true;
-            loadData();
-          } else {
-            alert('❌ שגיאה במחיקת נתונים');
-          }
-        } catch (e) {
-          alert('❌ שגיאה: ' + e.message);
-        }
+          const res = await fetch('/api/admin/reset-all', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+          if (res.ok) { alert('✅ כל הנתונים נמחקו!'); shouldUpdateMapView = true; loadData(); }
+        } catch (e) { alert('❌ שגיאה: ' + e.message); }
       });
       
-      document.getElementById('btnExportVoted').addEventListener('click', () => {
-        window.location.href = '/api/admin/export/voted';
-      });
+      document.getElementById('btnExportVoted').addEventListener('click', () => { window.location.href = '/api/admin/export/voted'; });
+      document.getElementById('btnExportNotVoted').addEventListener('click', () => { window.location.href = '/api/admin/export/not-voted'; });
+      document.getElementById('btnExportAll').addEventListener('click', () => { window.location.href = '/api/admin/export/all'; });
       
-      document.getElementById('btnExportNotVoted').addEventListener('click', () => {
-        window.location.href = '/api/admin/export/not-voted';
-      });
-      
-      document.getElementById('btnExportAll').addEventListener('click', () => {
-        window.location.href = '/api/admin/export/all';
-      });
-      
-      document.getElementById('btnAddPoll').addEventListener('click', () => {
-        document.getElementById('pollModal').style.display = 'block';
-      });
-      
-      document.getElementById('btnCancelPoll').addEventListener('click', () => {
-        document.getElementById('pollModal').style.display = 'none';
-        document.getElementById('pollForm').reset();
-      });
+      document.getElementById('btnAddPoll').addEventListener('click', () => { document.getElementById('pollModal').style.display = 'block'; });
+      document.getElementById('btnCancelPoll').addEventListener('click', () => { document.getElementById('pollModal').style.display = 'none'; document.getElementById('pollForm').reset(); });
       
       document.getElementById('pollForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        
         const name = document.getElementById('pollName').value;
         const address = document.getElementById('pollAddress').value;
         const radius = parseInt(document.getElementById('pollRadius').value);
-        
         const submitBtn = e.target.querySelector('.btn-submit');
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'ממיר כתובת...';
-        
+        submitBtn.disabled = true; submitBtn.textContent = 'ממיר כתובת...';
         try {
-          const res = await fetch('/api/admin/polls/add', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, address, radius })
-          });
-          
-          if (res.ok) {
-            alert('✅ קלפי נוספה בהצלחה!');
-            document.getElementById('pollModal').style.display = 'none';
-            document.getElementById('pollForm').reset();
-            shouldUpdateMapView = true;
-            loadData();
-          }
-        } catch (e) {
-          alert('❌ שגיאה: ' + e.message);
-        } finally {
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'הוסף קלפי';
-        }
+          const res = await fetch('/api/admin/polls/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, address, radius }) });
+          if (res.ok) { alert('✅ קלפי נוספה!'); document.getElementById('pollModal').style.display = 'none'; document.getElementById('pollForm').reset(); shouldUpdateMapView = true; loadData(); }
+        } catch (e) { alert('❌ שגיאה: ' + e.message); }
+        finally { submitBtn.disabled = false; submitBtn.textContent = 'הוסף קלפי'; }
       });
       
       document.getElementById('btnSetCurrentLocation').addEventListener('click', () => {
-        if (!navigator.geolocation) {
-          alert('❌ הדפדפן שלך לא תומך ב-GPS');
-          return;
-        }
-        
+        if (!navigator.geolocation) { alert('❌ הדפדפן לא תומך ב-GPS'); return; }
         const name = prompt('שם הקלפי:');
         if (!name) return;
-        
-        const radiusInput = prompt('רדיוס זיהוי (מטרים):', '20');
-        const radius = parseInt(radiusInput) || 20;
-        
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            try {
-              const res = await fetch('/api/admin/polls/add', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                  name, 
-                  address: 'מיקום נוכחי',
-                  lat: position.coords.latitude,
-                  lng: position.coords.longitude,
-                  radius: radius
-                })
-              });
-              
-              if (res.ok) {
-                alert('✅ קלפי נוספה במיקום הנוכחי!');
-                shouldUpdateMapView = true;
-                loadData();
-              }
-            } catch (e) {
-              alert('❌ שגיאה: ' + e.message);
-            }
-          },
-          () => {
-            alert('❌ לא ניתן לקבל את המיקום הנוכחי');
-          }
-        );
+        const radius = parseInt(prompt('רדיוס (מטרים):', '20')) || 20;
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          try {
+            const res = await fetch('/api/admin/polls/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, address: 'מיקום נוכחי', lat: position.coords.latitude, lng: position.coords.longitude, radius }) });
+            if (res.ok) { alert('✅ קלפי נוספה!'); shouldUpdateMapView = true; loadData(); }
+          } catch (e) { alert('❌ שגיאה: ' + e.message); }
+        }, () => { alert('❌ לא ניתן לקבל מיקום'); });
       });
       
       document.getElementById('btnAddVoter').addEventListener('click', async () => {
         await loadData();
-        
-        if (data.polls.length === 0) {
-          alert('❌ אין קלפיות במערכת. הוסף קלפי קודם.');
-          return;
-        }
-        
+        if (data.polls.length === 0) { alert('❌ הוסף קלפי קודם'); return; }
         const select = document.getElementById('voterPoll');
         select.innerHTML = '<option value="">-- בחר קלפי --</option>';
         data.polls.forEach(poll => {
           const option = document.createElement('option');
           option.value = poll.id;
-          option.textContent = `${poll.name} (רדיוס: ${poll.radius}מ')`;
+          option.textContent = `${poll.name} (${poll.radius}מ')`;
           select.appendChild(option);
         });
-        
         document.getElementById('voterModal').style.display = 'block';
       });
       
-      document.getElementById('btnCancelVoter').addEventListener('click', () => {
-        document.getElementById('voterModal').style.display = 'none';
-        document.getElementById('voterForm').reset();
-      });
+      document.getElementById('btnCancelVoter').addEventListener('click', () => { document.getElementById('voterModal').style.display = 'none'; document.getElementById('voterForm').reset(); });
       
       document.getElementById('voterForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        
         const name = document.getElementById('voterName').value;
         const idNumber = document.getElementById('voterIdNumber').value;
         const pollId = parseInt(document.getElementById('voterPoll').value);
-        
         try {
-          const res = await fetch('/api/admin/voters/add', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, idNumber, pollId })
-          });
-          
-          if (res.ok) {
-            alert('✅ בוחר נוסף בהצלחה!');
-            document.getElementById('voterModal').style.display = 'none';
-            document.getElementById('voterForm').reset();
-            loadData();
-          }
-        } catch (e) {
-          alert('❌ שגיאה: ' + e.message);
-        }
+          const res = await fetch('/api/admin/voters/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, idNumber, pollId }) });
+          if (res.ok) { alert('✅ בוחר נוסף!'); document.getElementById('voterModal').style.display = 'none'; document.getElementById('voterForm').reset(); loadData(); }
+        } catch (e) { alert('❌ שגיאה: ' + e.message); }
       });
       
-      window.addEventListener('click', (e) => {
-        if (e.target.classList.contains('modal')) {
-          e.target.style.display = 'none';
-        }
-      });
-      
-      map.on('movestart', () => {
-        shouldUpdateMapView = false;
-      });
+      window.addEventListener('click', (e) => { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; });
+      map.on('movestart', () => { shouldUpdateMapView = false; });
     });
     
     async function toggleSystemMode() {
       const newMode = currentSystemMode === 'test' ? 'election' : 'test';
-      
-      const confirmMsg = newMode === 'election' 
-        ? '⚠️ האם להעביר למצב יום בחירות?\n\nהמערכת תהיה פעילה לכל הבוחרים!'
-        : '⚠️ האם להעביר למצב ניסוי?\n\nזה מצב הדגמה בלבד.';
-      
+      const confirmMsg = newMode === 'election' ? '⚠️ להעביר למצב יום בחירות?' : '⚠️ להעביר למצב ניסוי?';
       if (!confirm(confirmMsg)) return;
-      
       try {
-        const res = await fetch('/api/admin/system-mode', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mode: newMode })
-        });
-        
-        if (res.ok) {
-          currentSystemMode = newMode;
-          updateSystemModeBanner(newMode);
-          alert('✅ המצב שונה בהצלחה!');
-        }
-      } catch (e) {
-        alert('❌ שגיאה: ' + e.message);
-      }
+        const res = await fetch('/api/admin/system-mode', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: newMode }) });
+        if (res.ok) { currentSystemMode = newMode; updateSystemModeBanner(newMode); alert('✅ המצב שונה!'); }
+      } catch (e) { alert('❌ שגיאה: ' + e.message); }
     }
     
     function updateSystemModeBanner(mode) {
       const banner = document.getElementById('systemModeBanner');
       const modeText = document.getElementById('modeText');
       const modeSubtitle = document.getElementById('modeSubtitle');
-      
       if (mode === 'election') {
         banner.className = 'system-mode-banner election';
         banner.querySelector('.mode-icon').textContent = '✅';
@@ -782,32 +494,17 @@
     
     function initMap() {
       map = L.map('map').setView([32.0853, 34.7818], 12);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap'
-      }).addTo(map);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
     }
     
     async function loadData() {
       try {
         const resp = await fetch('/api/admin/data');
         data = await resp.json();
-        
-        if (data.systemMode !== currentSystemMode) {
-          currentSystemMode = data.systemMode;
-          updateSystemModeBanner(currentSystemMode);
-        }
-        
-        updateStats();
-        updateMap();
-        updateTable();
-        
-        document.getElementById('defaultRadiusText').textContent = data.defaultRadius || 20;
-        document.getElementById('lastUpdate').textContent = 
-          new Date().toLocaleTimeString('he-IL');
-      } catch (e) {
-        console.error('Error loading data:', e);
-      }
+        if (data.systemMode !== currentSystemMode) { currentSystemMode = data.systemMode; updateSystemModeBanner(currentSystemMode); }
+        updateStats(); updateMap(); updateTable();
+        document.getElementById('lastUpdate') && (document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('he-IL'));
+      } catch (e) { console.error('Error:', e); }
     }
     
     function updateStats() {
@@ -822,19 +519,11 @@
     function updateMap() {
       markers.forEach(marker => map.removeLayer(marker));
       markers = [];
-      
       data.polls.forEach(poll => {
         const marker = L.marker([parseFloat(poll.lat), parseFloat(poll.lng)]).addTo(map);
-        marker.bindPopup(`
-          <b>${poll.name}</b><br>
-          ${poll.address || ''}<br>
-          📏 רדיוס: ${poll.radius || 20} מטר<br>
-          הצביעו: ${poll.voted} / ${poll.totalVoters}<br>
-          אחוז: ${poll.percentage}%
-        `);
+        marker.bindPopup(`<b>${poll.name}</b><br>${poll.address || ''}<br>📏 רדיוס: ${poll.radius || 20}מ'<br>הצביעו: ${poll.voted}/${poll.totalVoters}`);
         markers.push(marker);
       });
-      
       if (data.polls.length > 0 && shouldUpdateMapView) {
         const bounds = L.latLngBounds(data.polls.map(p => [parseFloat(p.lat), parseFloat(p.lng)]));
         map.fitBounds(bounds, { padding: [50, 50], maxZoom: 13 });
@@ -843,59 +532,28 @@
     
     function updateTable() {
       const tbody = document.getElementById('votersBody');
-      
-      if (data.voters.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">אין בוחרים במערכת</td></tr>';
-        return;
-      }
-      
+      if (data.voters.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="empty-state">אין בוחרים במערכת</td></tr>'; return; }
       let html = '';
       data.voters.forEach((voter, idx) => {
-        const badge = voter.voted 
-          ? '<span class="badge badge-success">✅ הצביע</span>'
-          : '<span class="badge badge-pending">⏳ טרם הצביע</span>';
-        
+        const badge = voter.voted ? '<span class="badge badge-success">✅ הצביע</span>' : '<span class="badge badge-pending">⏳ טרם</span>';
         const poll = data.polls.find(p => p.id === voter.pollId);
         const radius = poll ? poll.radius : 20;
-        
-        html += `
-          <tr>
-            <td>${idx + 1}</td>
-            <td>${voter.name}</td>
-            <td>${voter.pollName}</td>
-            <td>${radius}</td>
-            <td>${badge}</td>
-            <td>${voter.votedAt || '-'}</td>
-          </tr>
-        `;
+        html += `<tr><td>${idx+1}</td><td>${voter.name}</td><td>${voter.pollName}</td><td>${radius}</td><td>${badge}</td><td>${voter.votedAt || '-'}</td></tr>`;
       });
-      
       tbody.innerHTML = html;
     }
     
     function updateDateTime() {
       const now = new Date();
-      
-      const dateStr = now.toLocaleDateString('he-IL', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-      document.getElementById('currentDate').textContent = dateStr;
-      
+      document.getElementById('currentDate').textContent = now.toLocaleDateString('he-IL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
       const endTime = new Date(now);
       endTime.setHours(22, 0, 0, 0);
-      
       const diff = endTime - now;
-      
       if (diff > 0) {
         const hours = Math.floor(diff / 3600000);
         const minutes = Math.floor((diff % 3600000) / 60000);
         const seconds = Math.floor((diff % 60000) / 1000);
-        
-        document.getElementById('countdown').textContent = 
-          `${hours} שעות ${minutes} דקות ${seconds} שניות`;
+        document.getElementById('countdown').textContent = `${hours} שעות ${minutes} דקות ${seconds} שניות`;
       } else {
         document.getElementById('countdown').textContent = 'הקלפיות נסגרו';
       }
