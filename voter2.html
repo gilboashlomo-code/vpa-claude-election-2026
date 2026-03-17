@@ -129,7 +129,7 @@
 <body>
   <div class="alert-overlay" id="alertOverlay">
     <div class="alert-content">
-      <div class="alert-title">🗳️ הגעת לקלפי שלך!</div>
+ <div class="alert-title">🗳️ <span id="voterNameAlert"></span> — הגעת לקלפי שלך!</div>
       <div class="alert-subtitle">עכשיו הזמן להצביע ולהשפיע!</div>
       <img class="campaign-image" 
         src="https://raw.githubusercontent.com/gilboashlomo-code/vpa-claude-election-2026/main/%D7%93%D7%95%D7%A0%D7%90%D7%9C%D7%93%20%D7%98%D7%A8%D7%90%D7%9E%D7%A4%20%D7%9C%D7%9E%D7%A9%D7%99%D7%90%D7%95%D7%AA%20%D7%99%D7%A9%D7%A8%D7%90%D7%9C.png"
@@ -138,13 +138,12 @@
       <button class="alert-btn" onclick="closeAlert()">✅ לחץ כאן לאישור הצבעתך</button>
     </div>
   </div>
-  
+
   <div class="container">
     <div class="logo">🗳️</div>
     <h1>מערכת הצבעה VPA</h1>
     <p class="subtitle">ברוכים הבאים למערכת זיהוי הקלפי שלך</p>
-    
-    <div id="registrationForm">
+        <div id="registrationForm">
       <form id="voterForm">
         <div class="form-group">
           <label>שם מלא *</label>
