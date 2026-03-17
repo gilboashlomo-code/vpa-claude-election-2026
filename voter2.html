@@ -291,6 +291,7 @@
             const data = await res.json();
             if (data.success) {
               voterId = data.voter.id;
+              document.getElementById('voterNameAlert').textContent = name;
               document.getElementById('registrationForm').classList.add('hidden');
               document.getElementById('trackingStatus').classList.remove('hidden');
               watchId = navigator.geolocation.watchPosition(trackPosition,
