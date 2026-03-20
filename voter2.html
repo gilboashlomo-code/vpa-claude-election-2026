@@ -9,11 +9,8 @@
     body { 
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-      min-height: 100vh; 
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      min-height: 100vh; padding: 20px;
+      display: flex; justify-content: center; align-items: center;
     }
     .container { 
       background: white; border-radius: 20px; padding: 40px 30px;
@@ -45,6 +42,28 @@
     .distance { font-size: 24px; font-weight: 700; margin: 20px 0; color: #667eea; }
     .hidden { display: none; }
     .message-box { margin-top: 20px; padding: 20px; background: #f3f4f6; border-radius: 12px; }
+
+    /* הודעת אייפון */
+    .iphone-warning {
+      display: none;
+      background: #fff8e1;
+      border: 2px solid #f59e0b;
+      border-radius: 16px;
+      padding: 24px 20px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .iphone-warning .warn-icon { font-size: 40px; margin-bottom: 12px; }
+    .iphone-warning .warn-title { font-size: 18px; font-weight: 700; color: #92400e; margin-bottom: 10px; }
+    .iphone-warning .warn-text { font-size: 14px; color: #78350f; line-height: 1.6; margin-bottom: 16px; }
+    .btn-chrome {
+      display: block; width: 100%; padding: 14px;
+      background: #1565c0; color: white;
+      border: none; border-radius: 12px;
+      font-size: 16px; font-weight: 700; cursor: pointer;
+    }
+
+    /* מסך התראה */
     .alert-overlay {
       display: none; position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -58,29 +77,19 @@
       0%, 100% { background: #dc2626; }
       50% { background: #ff0000; }
     }
-    .alert-content {
-      text-align: center; color: white;
-      max-width: 500px; width: 100%; padding-top: 10px;
-    }
-    .alert-title {
-      font-size: 28px; font-weight: 900;
-      margin-bottom: 6px; line-height: 1.2;
-    }
+    .alert-content { text-align: center; color: white; max-width: 500px; width: 100%; padding-top: 10px; }
+    .alert-title { font-size: 28px; font-weight: 900; margin-bottom: 6px; line-height: 1.2; }
     .alert-subtitle { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
     .campaign-image {
       width: 100%; max-width: 280px; max-height: 40vh;
       object-fit: cover; border-radius: 12px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.4); margin-bottom: 12px;
     }
-    .party-link {
-      display: block; color: white; font-size: 15px;
-      margin-bottom: 12px; text-decoration: underline;
-    }
+    .party-link { display: block; color: white; font-size: 15px; margin-bottom: 12px; text-decoration: underline; }
     .alert-btn {
       padding: 15px 30px; background: white; color: #dc2626;
-      border: none; border-radius: 16px; font-size: 20px;
-      font-weight: 700; cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      border: none; border-radius: 16px; font-size: 20px; font-weight: 700;
+      cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       width: 90%; max-width: 350px; margin-bottom: 20px;
     }
   </style>
@@ -102,6 +111,17 @@
     <div class="logo">🗳️</div>
     <h1>מערכת הצבעה VPA</h1>
     <p class="subtitle">ברוכים הבאים למערכת זיהוי הקלפי שלך</p>
+
+    <!-- הודעה לאייפון בלבד -->
+    <div class="iphone-warning" id="iphoneWarning">
+      <div class="warn-icon">📱</div>
+      <div class="warn-title">נדרש דפדפן Chrome</div>
+      <div class="warn-text">
+        איתור מיקום הקלפי שלך אפשרי רק דרך Chrome.<br>
+        ההתקנה חינמית ותשרת אותך בכל עת — גם כחלופה לספארי.
+      </div>
+      <button class="btn-chrome" onclick="openChrome()">הורד Chrome חינם ←</button>
+    </div>
     
     <div id="registrationForm">
       <form id="voterForm">
@@ -146,6 +166,31 @@
     let voterId = null;
     let hasVoted = false;
     let lastDistance = null;
+    let voterNameGlobal = '';
+
+    // בדיקה אם Safari באייפון ללא תמיכה
+    function isBlockedSafari() {
+      const ua = navigator.userAgent;
+      const isIOS = /iPad|iPhone|iPod/.test(ua);
+      const isSafari = /Safari/.test(ua) && !/Chrome/.test(ua) && !/CriOS/.test(ua) && !/FxiOS/.test(ua);
+      return isIOS && isSafari;
+    }
+
+    function openChrome() {
+      const url = encodeURIComponent(window.location.href);
+      window.location.href = 'googlechrome://' + window.location.host + window.location.pathname;
+      setTimeout(() => {
+        window.location.href = 'https://apps.apple.com/il/app/google-chrome/id535886823';
+      }, 2000);
+    }
+
+    // הצג אזהרה רק לאייפון עם Safari
+    window.addEventListener('DOMContentLoaded', () => {
+      if (isBlockedSafari()) {
+        document.getElementById('iphoneWarning').style.display = 'block';
+        document.getElementById('submitBtn').disabled = true;
+      }
+    });
 
     function closeAlert() {
       document.getElementById('alertOverlay').classList.remove('active');
@@ -205,8 +250,6 @@
       if (watchId) navigator.geolocation.clearWatch(watchId);
     }
 
-    let voterNameGlobal = '';
-
     function trackPosition(position) {
       const lat = position.coords.latitude;
       const lng = position.coords.longitude;
@@ -230,7 +273,7 @@
       e.preventDefault();
       const name = document.getElementById('voterName').value;
       const idNumber = document.getElementById('voterIdNumber').value;
-      if (!navigator.geolocation) { alert('הדפדפן לא תומך במיקום GPS'); return; }
+      if (!navigator.geolocation) { alert('הדפדפן לא תומך במיקום'); return; }
       voterNameGlobal = name;
       document.getElementById('submitBtn').disabled = true;
       document.getElementById('submitBtn').textContent = 'מאתר מיקום...';
@@ -257,7 +300,7 @@
               document.getElementById('registrationForm').classList.add('hidden');
               document.getElementById('trackingStatus').classList.remove('hidden');
               watchId = navigator.geolocation.watchPosition(trackPosition,
-                (error) => { console.error('GPS error:', error); },
+                (error) => { console.error('שגיאת מיקום:', error); },
                 { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
               );
             }
@@ -268,7 +311,7 @@
           }
         },
         () => {
-          alert('לא ניתן לקבל מיקום. אנא אפשר גישה למיקום.');
+          alert('לא ניתן לאתר מיקום. אנא אפשר גישה למיקום.');
           document.getElementById('submitBtn').disabled = false;
           document.getElementById('submitBtn').textContent = '📍 הצטרף לזיהוי קלפי';
         }
