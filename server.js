@@ -17,6 +17,15 @@ let nextPollId = 1;
 const DEFAULT_RADIUS = 20;
 let systemMode = 'test';
 
+function getIsraelTime() {
+  return new Date().toLocaleTimeString('he-IL', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZone: 'Asia/Jerusalem'
+  });
+}
+
 function loadData() {
   try {
     if (fs.existsSync(DATA_FILE)) {
@@ -138,7 +147,6 @@ app.post('/api/admin/reset-all', (req, res) => {
   res.json({ success: true });
 });
 
-// ✅ תוקן - מניעת כפילויות
 app.post('/api/admin/voters/add', (req, res) => {
   const { name, idNumber, pollId, address, notes } = req.body;
   
@@ -147,7 +155,6 @@ app.post('/api/admin/voters/add', (req, res) => {
     return res.status(400).json({ error: 'קלפי לא נמצאה' });
   }
 
-  // בדיקה לפי ת"ז
   if (idNumber && idNumber.trim() !== '') {
     const existing = voters.find(v => v.idNumber === idNumber.trim());
     if (existing) {
@@ -155,7 +162,6 @@ app.post('/api/admin/voters/add', (req, res) => {
     }
   }
 
-  // בדיקה לפי שם (אם אין ת"ז)
   if (name && name.trim() !== '') {
     const existingByName = voters.find(v =>
       v.name.trim().toLowerCase() === name.trim().toLowerCase() &&
@@ -229,7 +235,6 @@ app.post('/api/admin/polls/update', (req, res) => {
   res.json({ success: true, poll });
 });
 
-// ✅ תוקן - שעת הצבעה בשעון ישראל
 app.post('/api/admin/voters/update', (req, res) => {
   const { id, voted, notes } = req.body;
   const voter = voters.find(v => v.id === id);
@@ -237,12 +242,7 @@ app.post('/api/admin/voters/update', (req, res) => {
   
   if (voted !== undefined) {
     voter.voted = voted;
-    voter.votedAt = voted ? new Date().toLocaleTimeString('he-IL', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      timeZone: 'Asia/Jerusalem'
-    }) : null;
+    voter.votedAt = voted ? getIsraelTime() : null;
   }
   
   if (notes !== undefined) voter.notes = notes;
@@ -326,6 +326,23 @@ app.get('/api/voter/check-proximity', (req, res) => {
     pollName: poll.name,
     radius: pollRadius
   });
+});
+
+// ✅ תוקן — זיהוי בוחר אוטומטי עם שעון ישראל
+app.post('/api/voter/mark-voted', (req, res) => {
+  const { voterId } = req.body;
+  if (!voterId) return res.json({ success: false });
+
+  const voter = voters.find(v => v.id === parseInt(voterId));
+  if (!voter) return res.json({ success: false, error: 'בוחר לא נמצא' });
+
+  if (!voter.voted) {
+    voter.voted = true;
+    voter.votedAt = getIsraelTime();
+    saveData();
+  }
+
+  res.json({ success: true, voter });
 });
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
