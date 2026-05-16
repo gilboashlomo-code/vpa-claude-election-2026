@@ -66,21 +66,20 @@ function saveData() {
 async function geocodeAddress(address) {
   return new Promise((resolve) => {
     const encodedAddress = encodeURIComponent(address + ', Israel');
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}&limit=1`;
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}&key=${process.env.GOOGLE_MAPS_API_KEY}&language=he&region=IL`;
     https.get(url, { headers: { 'User-Agent': 'VPA-Election-System/1.0' } }, (res) => {
       let data = '';
       res.on('data', (chunk) => { data += chunk; });
       res.on('end', () => {
         try {
           const results = JSON.parse(data);
-          if (results && results.length > 0) {
-            resolve({ lat: parseFloat(results[0].lat), lng: parseFloat(results[0].lon) });
+          if (results.status === 'OK' && results.results.length > 0) {
+            const loc = results.results[0].geometry.location;
+            resolve({ lat: loc.lat, lng: loc.lng });
           } else { resolve(null); }
         } catch (e) { resolve(null); }
       });
     }).on('error', () => { resolve(null); });
-  });
-}
 
 loadData();
 
