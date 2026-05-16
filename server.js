@@ -66,7 +66,7 @@ function saveData() {
 async function geocodeAddress(address) {
   return new Promise((resolve) => {
     const encodedAddress = encodeURIComponent(address + ', Israel');
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}&key=${process.env.GOOGLE_MAPS_API_KEY}&language=he&region=IL`;
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}&key=${process.env.GOOGLE_MAPS_API_KEY}&language=he&region=IL`;
     https.get(url, { headers: { 'User-Agent': 'VPA-Election-System/1.0' } }, (res) => {
       let data = '';
       res.on('data', (chunk) => { data += chunk; });
@@ -80,6 +80,8 @@ async function geocodeAddress(address) {
         } catch (e) { resolve(null); }
       });
     }).on('error', () => { resolve(null); });
+  });
+}
 
 loadData();
 
