@@ -8,8 +8,7 @@ const PORT = 3000;
 app.use(express.json());
 app.use(express.static('.'));
 
-const DATA_FILE = path.join(__dirname, 'data.json');
-
+const DATA_FILE = '/var/data/data.json';
 let voters = [];
 let polls = [];
 let nextVoterId = 1;
