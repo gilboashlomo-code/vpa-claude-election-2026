@@ -16,16 +16,6 @@ let nextPollId = 1;
 const DEFAULT_RADIUS = 20;
 let systemMode = 'test';
 
-// ✅ מניעת שינה - בדיקה עצמית כל 10 דקות
-const SITE_URL = 'https://vpa-claude-election-2026.onrender.com';
-setInterval(() => {
-  https.get(SITE_URL, (res) => {
-    console.log('💓 שרת פעיל - סטטוס:', res.statusCode);
-  }).on('error', (err) => {
-    console.error('💓 שגיאת בדיקה:', err.message);
-  });
-}, 10 * 60 * 1000);
-
 function getIsraelTime() {
   return new Date().toLocaleTimeString('he-IL', {
     hour: '2-digit',
@@ -123,7 +113,6 @@ app.post('/api/admin/reset-all', (req, res) => {
   saveData();
   res.json({ success: true });
 });
-
 app.post('/api/admin/voters/add', (req, res) => {
   const { name, idNumber, pollId, address, notes } = req.body;
   const poll = polls.find(p => p.id === pollId);
@@ -241,7 +230,6 @@ app.get('/api/voter/check-proximity', (req, res) => {
   res.json({ inRange: distance <= pollRadius, distance: Math.round(distance), pollName: poll.name, radius: pollRadius });
 });
 
-// ✅ רישום הצבעה אוטומטי עם שעון ישראל
 app.post('/api/voter/mark-voted', (req, res) => {
   const { voterId } = req.body;
   if (!voterId) return res.json({ success: false });
