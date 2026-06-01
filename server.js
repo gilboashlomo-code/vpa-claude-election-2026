@@ -106,29 +106,26 @@ app.post('/api/admin/reset-all', (req, res) => {
 
 // ── VOTERS/ADD — with FIX 1 (not_found) + FIX 2 (already_voted) + FIX 3 (assigned poll) ──
 app.post('/api/admin/voters/add', (req, res) => {
-  const { name, idNumber, pollId, address, notes } = req.body;
+  const { name, idNumber, pollId, address, notes, source } = req.body;
 
-  // Called from voter2.html: idNumber provided, no pollId or pollId from nearest
-  if (idNumber && idNumber.trim() !== '') {
-    const existing = voters.find(v => v.idNumber === idNumber.trim());
-
-    // FIX 1: not in system
-    if (!existing) {
+  // Called from voter2.html (source = 'voter2'): check existing voter only
+  if (source === 'voter2') {
+    if (!idNumber || idNumber.trim() === '') {
       return res.json({ success: false, error: 'not_found' });
     }
-
-    // FIX 2: already voted
-    if (existing.voted) {
-      return res.json({ success: false, error: 'already_voted' });
-    }
-
-    // FIX 3: return assigned pollId so voter2 tracks only their poll
+    const existing = voters.find(v => v.idNumber === idNumber.trim());
+    if (!existing) return res.json({ success: false, error: 'not_found' });
+    if (existing.voted) return res.json({ success: false, error: 'already_voted' });
     return res.json({ success: true, voter: existing, existing: true });
   }
 
-  // Called from admin panel: add new voter manually
+  // Called from Admin panel: add new voter
   const poll = polls.find(p => p.id === pollId);
   if (!poll) return res.status(400).json({ error: 'קלפי לא נמצאה' });
+  if (idNumber && idNumber.trim() !== '') {
+    const existing = voters.find(v => v.idNumber === idNumber.trim());
+    if (existing) return res.json({ success: true, voter: existing, existing: true });
+  }
   if (name && name.trim() !== '') {
     const existingByName = voters.find(v =>
       v.name.trim().toLowerCase() === name.trim().toLowerCase() && v.pollId === pollId
