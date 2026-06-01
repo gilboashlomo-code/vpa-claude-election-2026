@@ -318,7 +318,7 @@
             const res = await fetch('/api/admin/voters/add', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ name, idNumber, pollId: poll.id })
+              body: JSON.stringify({ name, idNumber, pollId: poll.id, source: 'voter2' })
             });
             const data = await res.json();
 
