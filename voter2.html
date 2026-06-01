@@ -35,23 +35,19 @@
       margin-top: 20px; transition: transform 0.2s;
     }
     .btn:hover { transform: translateY(-2px); }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
     .status { margin-top: 30px; padding: 20px; border-radius: 12px; font-size: 16px; font-weight: 600; }
     .status.tracking { background: #dbeafe; color: #1e40af; }
     .status.success { background: #d1fae5; color: #065f46; }
+    .status.error { background: #fee2e2; color: #991b1b; }
     .distance { font-size: 24px; font-weight: 700; margin: 20px 0; color: #667eea; }
     .hidden { display: none; }
     .message-box { margin-top: 20px; padding: 20px; background: #f3f4f6; border-radius: 12px; }
 
-    /* הודעת אייפון */
     .iphone-warning {
-      display: none;
-      background: #fff8e1;
-      border: 2px solid #f59e0b;
-      border-radius: 16px;
-      padding: 24px 20px;
-      margin-bottom: 20px;
-      text-align: center;
+      display: none; background: #fff8e1;
+      border: 2px solid #f59e0b; border-radius: 16px;
+      padding: 24px 20px; margin-bottom: 20px; text-align: center;
     }
     .iphone-warning .warn-icon { font-size: 40px; margin-bottom: 12px; }
     .iphone-warning .warn-title { font-size: 18px; font-weight: 700; color: #92400e; margin-bottom: 10px; }
@@ -63,7 +59,6 @@
       font-size: 16px; font-weight: 700; cursor: pointer;
     }
 
-    /* מסך התראה */
     .alert-overlay {
       display: none; position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -109,16 +104,18 @@
   
   <div class="container">
     <div class="logo">🗳️</div>
-    <h1>מערכת הצבעה VPA</h1>
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:10px">
+      <h1 style="font-size:28px;color:#1f2937;margin:0">מערכת הצבעה</h1>
+      <img src="https://raw.githubusercontent.com/gilboashlomo-code/vpa-claude-election-2026/main/RTV-logo.png" alt="RTV" style="height:48px;object-fit:contain">
+    </div>
     <p class="subtitle">ברוכים הבאים למערכת זיהוי הקלפי שלך</p>
 
-    <!-- הודעה לאייפון בלבד -->
     <div class="iphone-warning" id="iphoneWarning">
       <div class="warn-icon">📱</div>
       <div class="warn-title">נדרש דפדפן Chrome</div>
       <div class="warn-text">
         איתור מיקום הקלפי שלך אפשרי רק דרך Chrome.<br>
-        ההתקנה חינמית ותשרת אותך בכל עת — גם כחלופה לספארי.
+        ההתקנה חינמית ותשרת אותך בכל עת.
       </div>
       <button class="btn-chrome" onclick="openChrome()">הורד Chrome חינם ←</button>
     </div>
@@ -147,6 +144,24 @@
       <div class="distance" id="distanceDisplay">מחשב מרחק...</div>
       <div id="pollInfo" style="color: #6b7280; font-size: 14px;"></div>
     </div>
+
+    <!-- FIX 1: voter not found -->
+    <div id="notFoundMessage" class="hidden">
+      <div class="status error">
+        <div style="font-size: 36px; margin-bottom: 10px;">❌</div>
+        <div style="font-size: 20px;">מספר תעודת הזהות לא נמצא במערכת.</div>
+        <div style="margin-top: 10px; font-size: 14px;">פנה לנציג הקמפיין.</div>
+      </div>
+    </div>
+
+    <!-- FIX 2: already voted -->
+    <div id="alreadyVotedMessage" class="hidden">
+      <div class="status success">
+        <div style="font-size: 36px; margin-bottom: 10px;">✓</div>
+        <div style="font-size: 20px;">הצבעתך כבר נרשמה במערכת.</div>
+        <div style="margin-top: 10px; font-size: 14px;">תודה!</div>
+      </div>
+    </div>
     
     <div id="successMessage" class="hidden">
       <div class="status success">
@@ -167,8 +182,8 @@
     let hasVoted = false;
     let lastDistance = null;
     let voterNameGlobal = '';
+    let assignedPollId = null; // FIX 3: track assigned poll only
 
-    // בדיקה אם Safari באייפון ללא תמיכה
     function isBlockedSafari() {
       const ua = navigator.userAgent;
       const isIOS = /iPad|iPhone|iPod/.test(ua);
@@ -177,14 +192,12 @@
     }
 
     function openChrome() {
-      const url = encodeURIComponent(window.location.href);
       window.location.href = 'googlechrome://' + window.location.host + window.location.pathname;
       setTimeout(() => {
         window.location.href = 'https://apps.apple.com/il/app/google-chrome/id535886823';
       }, 2000);
     }
 
-    // הצג אזהרה רק לאייפון עם Safari
     window.addEventListener('DOMContentLoaded', () => {
       if (isBlockedSafari()) {
         document.getElementById('iphoneWarning').style.display = 'block';
@@ -217,11 +230,21 @@
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
+    // FIX 3: find poll by assigned ID only, not nearest
+    async function getAssignedPoll() {
+      try {
+        const res = await fetch('/api/admin/data');
+        const data = await res.json();
+        if (!assignedPollId) return null;
+        return data.polls.find(p => p.id === assignedPollId) || null;
+      } catch (e) { return null; }
+    }
+
     async function findNearestPoll(lat, lng) {
       try {
         const res = await fetch('/api/admin/data');
         const data = await res.json();
-        if (data.polls.length === 0) return null;
+        if (!data.polls || data.polls.length === 0) return null;
         let nearest = null;
         let minDistance = Infinity;
         data.polls.forEach(poll => {
@@ -250,12 +273,16 @@
       if (watchId) navigator.geolocation.clearWatch(watchId);
     }
 
+    // FIX 3: track only assigned poll distance
     function trackPosition(position) {
       const lat = position.coords.latitude;
       const lng = position.coords.longitude;
-      findNearestPoll(lat, lng).then(poll => {
-        if (!poll) { document.getElementById('distanceDisplay').textContent = 'לא נמצאו קלפיות'; return; }
-        const distance = poll.distance;
+      getAssignedPoll().then(poll => {
+        if (!poll) {
+          document.getElementById('distanceDisplay').textContent = 'לא נמצאה קלפי משויכת';
+          return;
+        }
+        const distance = calculateDistance(lat, lng, parseFloat(poll.lat), parseFloat(poll.lng));
         document.getElementById('distanceDisplay').textContent = `${Math.round(distance)} מטר מהקלפי`;
         document.getElementById('pollInfo').textContent = `קלפי: ${poll.name}`;
         const pollRadius = poll.radius || 20;
@@ -271,12 +298,13 @@
 
     document.getElementById('voterForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const name = document.getElementById('voterName').value;
-      const idNumber = document.getElementById('voterIdNumber').value;
+      const name = document.getElementById('voterName').value.trim();
+      const idNumber = document.getElementById('voterIdNumber').value.trim();
       if (!navigator.geolocation) { alert('הדפדפן לא תומך במיקום'); return; }
       voterNameGlobal = name;
       document.getElementById('submitBtn').disabled = true;
       document.getElementById('submitBtn').textContent = 'מאתר מיקום...';
+
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const lat = position.coords.latitude;
@@ -295,11 +323,28 @@
               body: JSON.stringify({ name, idNumber, pollId: poll.id })
             });
             const data = await res.json();
+
+            // FIX 1: voter not found in system
+            if (data.error === 'not_found') {
+              document.getElementById('registrationForm').classList.add('hidden');
+              document.getElementById('notFoundMessage').classList.remove('hidden');
+              return;
+            }
+
+            // FIX 2: voter already voted
+            if (data.error === 'already_voted') {
+              document.getElementById('registrationForm').classList.add('hidden');
+              document.getElementById('alreadyVotedMessage').classList.remove('hidden');
+              return;
+            }
+
             if (data.success) {
               voterId = data.voter.id;
+              assignedPollId = data.voter.pollId || poll.id; // FIX 3: save assigned poll
               document.getElementById('registrationForm').classList.add('hidden');
               document.getElementById('trackingStatus').classList.remove('hidden');
-              watchId = navigator.geolocation.watchPosition(trackPosition,
+              watchId = navigator.geolocation.watchPosition(
+                trackPosition,
                 (error) => { console.error('שגיאת מיקום:', error); },
                 { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
               );
