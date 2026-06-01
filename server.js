@@ -18,10 +18,7 @@ let systemMode = 'test';
 
 function getIsraelTime() {
   return new Date().toLocaleTimeString('he-IL', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    timeZone: 'Asia/Jerusalem'
+    hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Jerusalem'
   });
 }
 
@@ -34,22 +31,18 @@ function loadData() {
       nextVoterId = data.nextVoterId || 1;
       nextPollId = data.nextPollId || 1;
       systemMode = data.systemMode || 'test';
-      console.log('✅ נתונים נטענו מהקובץ');
-      console.log('🔧 מצב מערכת:', systemMode === 'test' ? 'ניסיון/דמו' : 'יום בחירות');
+      console.log('נתונים נטענו מהקובץ');
+      console.log('מצב מערכת:', systemMode === 'test' ? 'ניסיון/דמו' : 'יום בחירות');
     }
-  } catch (err) {
-    console.error('❌ שגיאה בטעינת נתונים:', err);
-  }
+  } catch (err) { console.error('שגיאה בטעינת נתונים:', err); }
 }
 
 function saveData() {
   try {
     const data = { voters, polls, nextVoterId, nextPollId, systemMode };
     fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
-    console.log('💾 נתונים נשמרו');
-  } catch (err) {
-    console.error('❌ שגיאה בשמירת נתונים:', err);
-  }
+    console.log('נתונים נשמרו');
+  } catch (err) { console.error('שגיאה בשמירת נתונים:', err); }
 }
 
 async function geocodeAddress(address) {
@@ -85,16 +78,13 @@ app.get('/api/admin/data', (req, res) => {
     const pollVoters = voters.filter(v => v.pollId === poll.id);
     const pollVoted = pollVoters.filter(v => v.voted).length;
     return {
-      ...poll,
-      totalVoters: pollVoters.length,
-      voted: pollVoted,
+      ...poll, totalVoters: pollVoters.length, voted: pollVoted,
       percentage: pollVoters.length > 0 ? ((pollVoted / pollVoters.length) * 100).toFixed(1) : 0
     };
   });
   res.json({
     voters: voters.map(v => ({ ...v, pollName: polls.find(p => p.id === v.pollId)?.name || 'לא משויך' })),
-    polls: pollsWithStats,
-    votedCount, totalVoters, votedPercentage,
+    polls: pollsWithStats, votedCount, totalVoters, votedPercentage,
     defaultRadius: DEFAULT_RADIUS, systemMode,
     recentEvents: voters.filter(v => v.voted).slice(-10).reverse()
   });
@@ -113,14 +103,32 @@ app.post('/api/admin/reset-all', (req, res) => {
   saveData();
   res.json({ success: true });
 });
+
+// ── VOTERS/ADD — with FIX 1 (not_found) + FIX 2 (already_voted) + FIX 3 (assigned poll) ──
 app.post('/api/admin/voters/add', (req, res) => {
   const { name, idNumber, pollId, address, notes } = req.body;
-  const poll = polls.find(p => p.id === pollId);
-  if (!poll) return res.status(400).json({ error: 'קלפי לא נמצאה' });
+
+  // Called from voter2.html: idNumber provided, no pollId or pollId from nearest
   if (idNumber && idNumber.trim() !== '') {
     const existing = voters.find(v => v.idNumber === idNumber.trim());
-    if (existing) return res.json({ success: true, voter: existing, existing: true });
+
+    // FIX 1: not in system
+    if (!existing) {
+      return res.json({ success: false, error: 'not_found' });
+    }
+
+    // FIX 2: already voted
+    if (existing.voted) {
+      return res.json({ success: false, error: 'already_voted' });
+    }
+
+    // FIX 3: return assigned pollId so voter2 tracks only their poll
+    return res.json({ success: true, voter: existing, existing: true });
   }
+
+  // Called from admin panel: add new voter manually
+  const poll = polls.find(p => p.id === pollId);
+  if (!poll) return res.status(400).json({ error: 'קלפי לא נמצאה' });
   if (name && name.trim() !== '') {
     const existingByName = voters.find(v =>
       v.name.trim().toLowerCase() === name.trim().toLowerCase() && v.pollId === pollId
@@ -168,10 +176,7 @@ app.post('/api/admin/voters/update', (req, res) => {
   const { id, voted, notes } = req.body;
   const voter = voters.find(v => v.id === id);
   if (!voter) return res.status(404).json({ error: 'בוחר לא נמצא' });
-  if (voted !== undefined) {
-    voter.voted = voted;
-    voter.votedAt = voted ? getIsraelTime() : null;
-  }
+  if (voted !== undefined) { voter.voted = voted; voter.votedAt = voted ? getIsraelTime() : null; }
   if (notes !== undefined) voter.notes = notes;
   saveData();
   res.json({ success: true, voter });
@@ -235,11 +240,7 @@ app.post('/api/voter/mark-voted', (req, res) => {
   if (!voterId) return res.json({ success: false });
   const voter = voters.find(v => v.id === parseInt(voterId));
   if (!voter) return res.json({ success: false, error: 'בוחר לא נמצא' });
-  if (!voter.voted) {
-    voter.voted = true;
-    voter.votedAt = getIsraelTime();
-    saveData();
-  }
+  if (!voter.voted) { voter.voted = true; voter.votedAt = getIsraelTime(); saveData(); }
   res.json({ success: true, voter });
 });
 
@@ -250,14 +251,13 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   const Δφ = (lat2 - lat1) * Math.PI / 180;
   const Δλ = (lon2 - lon1) * Math.PI / 180;
   const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return R * c;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
 app.listen(PORT, () => {
-  console.log('🚀 מערכת VPA פועלת על פורט ' + PORT);
-  console.log('📍 אדמין: http://localhost:' + PORT + '/admin');
-  console.log('💾 קובץ נתונים: ' + DATA_FILE);
-  console.log('📏 רדיוס ברירת מחדל: ' + DEFAULT_RADIUS + ' מטר');
-  console.log('🔧 מצב מערכת:', systemMode === 'test' ? 'ניסיון/דמו ⚠️' : 'יום בחירות ✅');
+  console.log('מערכת VPA פועלת על פורט ' + PORT);
+  console.log('אדמין: http://localhost:' + PORT + '/admin');
+  console.log('קובץ נתונים: ' + DATA_FILE);
+  console.log('רדיוס ברירת מחדל: ' + DEFAULT_RADIUS + ' מטר');
+  console.log('מצב מערכת:', systemMode === 'test' ? 'ניסיון/דמו' : 'יום בחירות');
 });
