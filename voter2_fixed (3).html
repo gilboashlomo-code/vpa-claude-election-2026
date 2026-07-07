@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VPA - הצבעה</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+      min-height: 100vh; padding: 20px;
+      display: flex; justify-content: center; align-items: center;
+    }
+    .container { 
+      background: white; border-radius: 20px; padding: 40px 30px;
+      max-width: 500px; width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center;
+    }
+    .logo { font-size: 64px; margin-bottom: 20px; }
+    h1 { font-size: 28px; color: #1f2937; margin-bottom: 10px; }
+    .subtitle { font-size: 16px; color: #6b7280; margin-bottom: 30px; }
+    .form-group { margin-bottom: 20px; text-align: right; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; }
+    .form-group input {
+      width: 100%; padding: 15px; border: 2px solid #e5e7eb;
+      border-radius: 12px; font-size: 16px; text-align: right;
+    }
+    .form-group input:focus { outline: none; border-color: #667eea; }
+    .btn {
+      width: 100%; padding: 18px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white; border: none; border-radius: 12px;
+      font-size: 18px; font-weight: 700; cursor: pointer;
+      margin-top: 20px; transition: transform 0.2s;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .status { margin-top: 30px; padding: 20px; border-radius: 12px; font-size: 16px; font-weight: 600; }
+    .status.tracking { background: #dbeafe; color: #1e40af; }
+    .status.success { background: #d1fae5; color: #065f46; }
+    .status.error { background: #fee2e2; color: #991b1b; }
+    .distance { font-size: 24px; font-weight: 700; margin: 20px 0; color: #667eea; }
+    .hidden { display: none; }
+    .message-box { margin-top: 20px; padding: 20px; background: #f3f4f6; border-radius: 12px; }
+
+    .iphone-warning {
+      display: none; background: #fff8e1;
+      border: 2px solid #f59e0b; border-radius: 16px;
+      padding: 24px 20px; margin-bottom: 20px; text-align: center;
+    }
+    .iphone-warning .warn-icon { font-size: 40px; margin-bottom: 12px; }
+    .iphone-warning .warn-title { font-size: 18px; font-weight: 700; color: #92400e; margin-bottom: 10px; }
+    .iphone-warning .warn-text { font-size: 14px; color: #78350f; line-height: 1.6; margin-bottom: 16px; }
+    .btn-chrome {
+      display: block; width: 100%; padding: 14px;
+      background: #1565c0; color: white;
+      border: none; border-radius: 12px;
+      font-size: 16px; font-weight: 700; cursor: pointer;
+    }
+
+    .alert-overlay {
+      display: none; position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: #dc2626; z-index: 9999;
+      flex-direction: column; justify-content: flex-start;
+      align-items: center; animation: flashRed 0.8s infinite;
+      overflow-y: auto; padding: 15px;
+    }
+    .alert-overlay.active { display: flex; }
+    @keyframes flashRed {
+      0%, 100% { background: #dc2626; }
+      50% { background: #ff0000; }
+    }
+    .alert-content { text-align: center; color: white; max-width: 500px; width: 100%; padding-top: 10px; }
+    .alert-title { font-size: 28px; font-weight: 900; margin-bottom: 6px; line-height: 1.2; }
+    .alert-subtitle { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+    .campaign-image {
+      width: 100%; max-width: 280px; max-height: 40vh;
+      object-fit: cover; border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4); margin-bottom: 12px;
+    }
+    .party-link { display: block; color: white; font-size: 15px; margin-bottom: 12px; text-decoration: underline; }
+    .alert-btn {
+      padding: 15px 30px; background: white; color: #dc2626;
+      border: none; border-radius: 16px; font-size: 20px; font-weight: 700;
+      cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      width: 90%; max-width: 350px; margin-bottom: 20px;
+    }
+  
+    /* Warning banner */
+    @keyframes warnPulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,.5); }
+      50% { box-shadow: 0 0 0 10px rgba(239,68,68,0); }
+    }
+    @keyframes warnBlink {
+      0%,100% { opacity:1; }
+      50% { opacity:0.15; }
+    }
+    .stay-open-banner {
+      display: none;
+      background: linear-gradient(135deg, rgba(239,68,68,.15), rgba(239,68,68,.06));
+      border: 2px solid rgba(239,68,68,.7);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      direction: rtl;
+      text-align: right;
+      animation: warnPulse 1.8s ease-in-out infinite;
+    }
+    .stay-open-banner .warn-icon {
+      font-size: 22px;
+      animation: warnBlink 1s ease-in-out infinite;
+      display: inline-block;
+      margin-left: 8px;
+    }
+    .stay-open-banner .warn-title {
+      font-size: 14px;
+      font-weight: 900;
+      color: #fca5a5;
+      margin-bottom: 4px;
+    }
+    .stay-open-banner .warn-sub {
+      font-size: 12px;
+      color: rgba(0,0,0,.65);
+      line-height: 1.6;
+    }
+    .stay-open-banner .warn-sub strong { color: #dc2626; }
+
+  </style>
+</head>
+<body>
+  <div class="alert-overlay" id="alertOverlay">
+    <div class="alert-content">
+      <div class="alert-title">🗳️ <span id="voterNameAlert"></span> — הגעת לקלפי שלך!</div>
+      <div class="alert-subtitle">עכשיו הזמן להצביע ולהשפיע!</div>
+      <img class="campaign-image" 
+        src="https://raw.githubusercontent.com/gilboashlomo-code/vpa-claude-election-2026/main/%D7%93%D7%95%D7%A0%D7%90%D7%9C%D7%93%20%D7%98%D7%A8%D7%90%D7%9E%D7%A4%20%D7%9C%D7%9E%D7%A9%D7%99%D7%90%D7%95%D7%AA%20%D7%99%D7%A9%D7%A8%D7%90%D7%9C.png"
+        alt="תמונת קמפיין">
+      <a class="party-link" href="#">🌐 לאתר המפלגה</a>
+      <button class="alert-btn" onclick="closeAlert()">✅ לחץ כאן לאישור הצבעתך</button>
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class="logo">🗳️</div>
+    <h1>מערכת הצבעה</h1>
+    <img src="https://raw.githubusercontent.com/gilboashlomo-code/vpa-claude-election-2026/main/RTV-LOGO.png" alt="RTV" style="height:60px;object-fit:contain;margin-bottom:16px">
+    <p class="subtitle">ברוכים הבאים למערכת זיהוי הקלפי שלך</p>
+
+    <div class="iphone-warning" id="iphoneWarning">
+      <div class="warn-icon">📱</div>
+      <div class="warn-title">נדרש דפדפן Chrome</div>
+      <div class="warn-text">
+        איתור מיקום הקלפי שלך אפשרי רק דרך Chrome.<br>
+        ההתקנה חינמית ותשרת אותך בכל עת.
+      </div>
+      <button class="btn-chrome" onclick="openChrome()">הורד Chrome חינם ←</button>
+    </div>
+    
+    <div id="registrationForm">
+      <form id="voterForm">
+        <div class="form-group">
+          <label>שם מלא *</label>
+          <input type="text" id="voterName" required placeholder="הכנס שם מלא">
+        </div>
+        <div class="form-group">
+          <label>מספר ת.ז *</label>
+          <input type="text" id="voterIdNumber" required placeholder="הכנס ת.ז" maxlength="9">
+        </div>
+        <button type="submit" class="btn" id="submitBtn">
+          📍 הצטרף לזיהוי קלפי
+        </button>
+      </form>
+    </div>
+    
+    <div id="stayOpenBanner" class="stay-open-banner">
+      <div><span class="warn-icon">⚠️</span><span class="warn-title">השאר את הדף הזה פתוח!</span></div>
+      <div class="warn-sub">מעבר לאפליקציה אחרת <strong>יפסיק את האיתור</strong> ויבטל את ההדגמה.</div>
+    </div>
+        <div id="trackingStatus" class="hidden">
+      <div class="status tracking">
+        <div>📡 זיהוי קלפי פעיל</div>
+        <div style="margin-top: 10px; font-size: 14px;">המערכת מזהה את הקלפי שלך</div>
+      </div>
+      <div class="distance" id="distanceDisplay">מחשב מרחק...</div>
+      <div id="pollInfo" style="color: #6b7280; font-size: 14px;"></div>
+    </div>
+
+    <!-- FIX 1: voter not found -->
+    <div id="notFoundMessage" class="hidden">
+      <div class="status error">
+        <div style="font-size: 36px; margin-bottom: 10px;">❌</div>
+        <div style="font-size: 20px;">מספר תעודת הזהות לא נמצא במערכת.</div>
+        <div style="margin-top: 10px; font-size: 14px;">פנה לנציג הקמפיין.</div>
+      </div>
+    </div>
+
+    <!-- FIX 2: already voted -->
+    <div id="alreadyVotedMessage" class="hidden">
+      <div class="status success">
+        <div style="font-size: 36px; margin-bottom: 10px;">✓</div>
+        <div style="font-size: 20px;">הצבעתך כבר נרשמה במערכת.</div>
+        <div style="margin-top: 10px; font-size: 14px;">תודה!</div>
+      </div>
+    </div>
+    
+    <div id="successMessage" class="hidden">
+      <div class="status success">
+        <div style="font-size: 48px; margin-bottom: 10px;">✅</div>
+        <div style="font-size: 24px;">הצבעה נרשמה בהצלחה!</div>
+        <div style="margin-top: 10px; font-size: 14px;">תודה שהשתתפת</div>
+      </div>
+      <div class="message-box">
+        <h3 style="color: #1f2937; margin-bottom: 10px;">תודה שהצבעת!</h3>
+        <p style="color: #6b7280;">למידע נוסף בקר באתר המפלגה</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let watchId = null;
+    let voterId = null;
+    let hasVoted = false;
+    let lastDistance = null;
+    let voterNameGlobal = '';
+    let assignedPollId = null; // FIX 3: track assigned poll only
+
+    function isBlockedSafari() {
+      const ua = navigator.userAgent;
+      const isIOS = /iPad|iPhone|iPod/.test(ua);
+      const isSafari = /Safari/.test(ua) && !/Chrome/.test(ua) && !/CriOS/.test(ua) && !/FxiOS/.test(ua);
+      return isIOS && isSafari;
+    }
+
+    function openChrome() {
+      window.location.href = 'googlechrome://' + window.location.host + window.location.pathname;
+      setTimeout(() => {
+        window.location.href = 'https://apps.apple.com/il/app/google-chrome/id535886823';
+      }, 2000);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (isBlockedSafari()) {
+        document.getElementById('iphoneWarning').style.display = 'block';
+        document.getElementById('submitBtn').disabled = true;
+      }
+    });
+
+    function closeAlert() {
+      document.getElementById('alertOverlay').classList.remove('active');
+      showSuccessMessage();
+    }
+
+    function showAlert(name) {
+      document.getElementById('voterNameAlert').textContent = name;
+      document.getElementById('alertOverlay').classList.add('active');
+      if ('vibrate' in navigator) {
+        navigator.vibrate([500, 200, 500, 200, 500, 200, 500, 200, 500]);
+      }
+    }
+
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371e3;
+      const φ1 = lat1 * Math.PI / 180;
+      const φ2 = lat2 * Math.PI / 180;
+      const Δφ = (lat2 - lat1) * Math.PI / 180;
+      const Δλ = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                Math.cos(φ1) * Math.cos(φ2) *
+                Math.sin(Δλ/2) * Math.sin(Δλ/2);
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    // FIX 3: find poll by assigned ID only, not nearest
+    async function getAssignedPoll() {
+      try {
+        const res = await fetch('/api/admin/data');
+        const data = await res.json();
+        if (!assignedPollId) return null;
+        return data.polls.find(p => p.id === assignedPollId) || null;
+      } catch (e) { return null; }
+    }
+
+    async function findNearestPoll(lat, lng) {
+      try {
+        const res = await fetch('/api/admin/data');
+        const data = await res.json();
+        if (!data.polls || data.polls.length === 0) return null;
+        let nearest = null;
+        let minDistance = Infinity;
+        data.polls.forEach(poll => {
+          const distance = calculateDistance(lat, lng, parseFloat(poll.lat), parseFloat(poll.lng));
+          if (distance < minDistance) { minDistance = distance; nearest = { ...poll, distance }; }
+        });
+        return nearest;
+      } catch (e) { return null; }
+    }
+
+    async function markAsVoted() {
+      if (hasVoted || !voterId) return;
+      try {
+        const res = await fetch('/api/admin/voters/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: voterId, voted: true })
+        });
+        if (res.ok) { hasVoted = true; }
+      } catch (e) { console.error(e); }
+    }
+
+    function showSuccessMessage() {
+      document.getElementById('trackingStatus').classList.add('hidden');
+      document.getElementById('successMessage').classList.remove('hidden');
+      if (watchId) navigator.geolocation.clearWatch(watchId);
+    }
+
+    // FIX 3: track only assigned poll distance
+    function trackPosition(position) {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      getAssignedPoll().then(poll => {
+        if (!poll) {
+          document.getElementById('distanceDisplay').textContent = 'לא נמצאה קלפי משויכת';
+          return;
+        }
+        const distance = calculateDistance(lat, lng, parseFloat(poll.lat), parseFloat(poll.lng));
+        document.getElementById('distanceDisplay').textContent = `${Math.round(distance)} מטר מהקלפי`;
+        document.getElementById('pollInfo').textContent = `קלפי: ${poll.name}`;
+        const pollRadius = poll.radius || 20;
+        if (distance <= pollRadius && !hasVoted) {
+          if (lastDistance === null || lastDistance > pollRadius) {
+            showAlert(voterNameGlobal);
+            markAsVoted();
+          }
+        }
+        lastDistance = distance;
+      });
+    }
+
+    document.getElementById('voterForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('voterName').value.trim();
+      const idNumber = document.getElementById('voterIdNumber').value.trim();
+      if (!navigator.geolocation) { alert('הדפדפן לא תומך במיקום'); return; }
+      voterNameGlobal = name;
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('submitBtn').textContent = 'מאתר מיקום...';
+
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          const poll = await findNearestPoll(lat, lng);
+          if (!poll) {
+            alert('לא נמצאו קלפיות במערכת');
+            document.getElementById('submitBtn').disabled = false;
+            document.getElementById('submitBtn').textContent = '📍 הצטרף לזיהוי קלפי';
+            return;
+          }
+          try {
+            const res = await fetch('/api/admin/voters/add', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name, idNumber, pollId: poll.id })
+            });
+            const data = await res.json();
+
+            // FIX 1: voter not found in system
+            if (data.error === 'not_found') {
+              document.getElementById('registrationForm').classList.add('hidden');
+              document.getElementById('notFoundMessage').classList.remove('hidden');
+              return;
+            }
+
+            // FIX 2: voter already voted
+            if (data.error === 'already_voted') {
+              document.getElementById('registrationForm').classList.add('hidden');
+              document.getElementById('alreadyVotedMessage').classList.remove('hidden');
+              return;
+            }
+
+            if (data.success) {
+              voterId = data.voter.id;
+              assignedPollId = data.voter.pollId || poll.id; // FIX 3: save assigned poll
+              document.getElementById('registrationForm').classList.add('hidden');
+              document.getElementById('trackingStatus').classList.remove('hidden');
+        document.getElementById('stayOpenBanner').style.display = 'block';
+              watchId = navigator.geolocation.watchPosition(
+                trackPosition,
+                (error) => { console.error('שגיאת מיקום:', error); },
+                { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+              );
+            }
+          } catch (e) {
+            alert('שגיאה בחיבור לשרת');
+            document.getElementById('submitBtn').disabled = false;
+            document.getElementById('submitBtn').textContent = '📍 הצטרף לזיהוי קלפי';
+          }
+        },
+        () => {
+          alert('לא ניתן לאתר מיקום. אנא אפשר גישה למיקום.');
+          document.getElementById('submitBtn').disabled = false;
+          document.getElementById('submitBtn').textContent = '📍 הצטרף לזיהוי קלפי';
+        }
+      );
+    });
+  </script>
+</body>
+</html>
