@@ -87,6 +87,46 @@
       cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       width: 90%; max-width: 350px; margin-bottom: 20px;
     }
+  
+    /* Warning banner */
+    @keyframes warnPulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,.5); }
+      50% { box-shadow: 0 0 0 10px rgba(239,68,68,0); }
+    }
+    @keyframes warnBlink {
+      0%,100% { opacity:1; }
+      50% { opacity:0.15; }
+    }
+    .stay-open-banner {
+      display: none;
+      background: linear-gradient(135deg, rgba(239,68,68,.15), rgba(239,68,68,.06));
+      border: 2px solid rgba(239,68,68,.7);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      direction: rtl;
+      text-align: right;
+      animation: warnPulse 1.8s ease-in-out infinite;
+    }
+    .stay-open-banner .warn-icon {
+      font-size: 22px;
+      animation: warnBlink 1s ease-in-out infinite;
+      display: inline-block;
+      margin-left: 8px;
+    }
+    .stay-open-banner .warn-title {
+      font-size: 14px;
+      font-weight: 900;
+      color: #fca5a5;
+      margin-bottom: 4px;
+    }
+    .stay-open-banner .warn-sub {
+      font-size: 12px;
+      color: rgba(0,0,0,.65);
+      line-height: 1.6;
+    }
+    .stay-open-banner .warn-sub strong { color: #dc2626; }
+
   </style>
 </head>
 <body>
@@ -134,7 +174,11 @@
       </form>
     </div>
     
-    <div id="trackingStatus" class="hidden">
+    <div id="stayOpenBanner" class="stay-open-banner">
+      <div><span class="warn-icon">⚠️</span><span class="warn-title">השאר את הדף הזה פתוח!</span></div>
+      <div class="warn-sub">מעבר לאפליקציה אחרת <strong>יפסיק את האיתור</strong> ויבטל את ההדגמה.</div>
+    </div>
+        <div id="trackingStatus" class="hidden">
       <div class="status tracking">
         <div>📡 זיהוי קלפי פעיל</div>
         <div style="margin-top: 10px; font-size: 14px;">המערכת מזהה את הקלפי שלך</div>
@@ -318,7 +362,7 @@
             const res = await fetch('/api/admin/voters/add', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ name, idNumber, pollId: poll.id, source: 'voter2' })
+              body: JSON.stringify({ name, idNumber, pollId: poll.id })
             });
             const data = await res.json();
 
@@ -341,6 +385,7 @@
               assignedPollId = data.voter.pollId || poll.id; // FIX 3: save assigned poll
               document.getElementById('registrationForm').classList.add('hidden');
               document.getElementById('trackingStatus').classList.remove('hidden');
+        document.getElementById('stayOpenBanner').style.display = 'block';
               watchId = navigator.geolocation.watchPosition(
                 trackPosition,
                 (error) => { console.error('שגיאת מיקום:', error); },
