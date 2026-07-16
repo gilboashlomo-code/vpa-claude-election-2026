@@ -103,7 +103,7 @@ def update_phonebars(html, polls):
     new_block = "  var phoneBars = [\n" + ",\n".join(bars) + "\n  ]"
     
     start = html.find("  var phoneBars = [")
-    end = html.find("].map(function(r){", start) + 2
+    end = html.find("].map(function(r){", start) + 1
     
     if start == -1:
         print("ERROR: phoneBars not found in HTML")
