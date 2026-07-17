@@ -1,1 +1,1181 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><title>VPA</title></head><body style="font-family: Arial; text-align: center; padding: 50px;"><h1>VPA Cloud MVP</h1><a href="/admin"><button style="padding: 15px 30px; font-size: 18px; cursor: pointer;">Manager (Admin Dashboard)</button></a></body></html> 
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>הסקר של המדינה</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --indigo:#4f46e5;--indigo-light:#818cf8;--indigo-dark:#3730a3;
+    --lime:#d4f542;--lime-dark:#a3e635;
+    --cyan:#22d3ee;--purple:#c084fc;--yellow:#facc15;
+    --bg:#0d0a2e;--card:#ffffff0f;--border:#ffffff18;
+  }
+  html,body{background:var(--bg);color:#fff;font-family:'Heebo',sans-serif;min-height:100vh}
+  body{display:flex;justify-content:center}
+  #app{width:100%;max-width:430px;min-height:100vh;background:var(--bg);position:relative;overflow-x:hidden}
+  .sc{animation:si .3s cubic-bezier(.22,1,.36,1) both}
+  @keyframes si{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:translateX(0)}}
+
+  .hdr{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:11px 16px 10px;background:rgba(13,10,46,0.92);border-bottom:1px solid var(--border);backdrop-filter:blur(12px)}
+  .hdr-logo{background:var(--indigo-dark);border:1px solid var(--indigo);border-radius:9px;padding:4px 9px;font-size:12px;font-weight:900;color:#c7d2fe}
+  .hdr-live{display:flex;align-items:center;gap:5px;background:rgba(34,197,94,.14);border:1px solid rgba(34,197,94,.3);border-radius:99px;padding:3px 11px}
+  .hdr-dot{width:7px;height:7px;background:#22c55e;border-radius:50%;animation:pu 1.4s infinite}
+  @keyframes pu{0%,100%{opacity:1}50%{opacity:.2}}
+  .hdr-cnt{font-size:12px;font-weight:900;color:#86efac}
+  .prog-wrap{height:3px;background:rgba(255,255,255,.08)}
+  .prog-fill{height:100%;background:linear-gradient(to left,var(--yellow),var(--lime),var(--cyan));transition:width .45s ease}
+
+  /* LANDING */
+  .land{background:linear-gradient(160deg,#1a0f4f 0%,#0d0a2e 45%,#0a1535 100%);padding:20px 16px 24px;position:relative;overflow:hidden}
+  .confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  .cd{position:absolute;border-radius:2px;animation:cf linear infinite}
+  @keyframes cf{0%{transform:translateY(-30px) rotate(0deg);opacity:1}100%{transform:translateY(900px) rotate(900deg);opacity:0}}
+  .land-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .land-logo-box{background:#3730a3;border:1px solid #6366f1;border-radius:10px;padding:5px 11px;display:flex;align-items:center;gap:6px}
+  .land-logo-txt{font-size:13px;font-weight:900;color:#c7d2fe}
+  .land-logo-sub{font-size:10px;font-weight:700;color:#a5b4fc}
+  .live-pill{display:flex;align-items:center;gap:5px;background:rgba(34,197,94,.14);border:1px solid rgba(34,197,94,.3);border-radius:99px;padding:4px 11px}
+  .live-pill-num{font-size:13px;font-weight:900;color:#86efac}
+  .live-pill-lbl{font-size:9px;color:rgba(255,255,255,.75)}
+  .land-headline{font-size:44px;font-weight:900;line-height:1.0;margin-bottom:12px}
+  .land-headline .wh{color:#fff}
+  .land-headline .yw{color:var(--lime)}
+  .land-tagline{font-size:14px;color:rgba(255,255,255,.8);font-weight:700;margin-bottom:3px}
+  .land-tagline2{font-size:13px;color:var(--lime);font-weight:900;margin-bottom:20px}
+  .phone{background:linear-gradient(160deg,#1e1b4b,#0f0e2a);border:2px solid rgba(99,102,241,.5);border-radius:26px;padding:14px 13px;margin-bottom:18px}
+  .phone-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+  .live-badge{background:#ef4444;border-radius:6px;padding:2px 9px;font-size:11px;font-weight:900;display:flex;align-items:center;gap:4px}
+  .live-badge-dot{width:6px;height:6px;background:#fff;border-radius:50%;animation:pu 1s infinite}
+  .phone-pnum{font-size:19px;font-weight:900;color:#a5f3fc;line-height:1}
+  .phone-plbl{font-size:9px;color:rgba(255,255,255,.72)}
+  .pbar{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+  .pbar-name{font-size:11px;font-weight:700;width:82px;flex-shrink:0;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pbar-track{flex:1;height:5px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden}
+  .pbar-fill{height:100%;border-radius:99px}
+  .pbar-num{font-size:11px;font-weight:900;width:22px;flex-shrink:0;color:rgba(255,255,255,.75)}
+  .phone-footer{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)}
+  .gauge-num{font-size:34px;font-weight:900;color:var(--lime-dark);line-height:1}
+  .gauge-lbl{font-size:10px;color:rgba(255,255,255,.72);margin-top:2px}
+  .feats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:18px}
+  .feat{background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:13px;padding:10px 6px;text-align:center}
+  .feat-icon{font-size:20px;margin-bottom:5px}
+  .feat-main{font-size:11px;font-weight:900;color:rgba(255,255,255,.9);line-height:1.3}
+  .feat-sub{font-size:9px;color:rgba(255,255,255,.72);margin-top:2px}
+  .cta{width:100%;padding:17px;border-radius:14px;background:var(--lime);color:#0f1a00;font-size:21px;font-weight:900;border:none;cursor:pointer;margin-bottom:13px;transition:transform .15s;letter-spacing:.2px;font-family:inherit}
+  .cta:active{transform:scale(.98)}
+  .social-proof{display:flex;align-items:center;justify-content:center;gap:9px;font-size:12px;color:rgba(255,255,255,.55);margin-bottom:20px}
+  .avatars{display:flex}
+  .av{width:25px;height:25px;border-radius:50%;border:2px solid var(--bg);margin-left:-7px;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center}
+  .prizes{background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.28);border-radius:18px;padding:14px 13px;margin-bottom:18px}
+  .prizes-title{display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px;font-weight:900;color:#c7d2fe;margin-bottom:13px}
+  .prizes-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .prize{background:rgba(0,0,0,.3);border:1px solid rgba(99,102,241,.22);border-radius:13px;padding:12px 8px;text-align:center}
+  .prize-em{font-size:30px;margin-bottom:6px}
+  .prize-name{font-size:12px;font-weight:900;color:#e0e7ff;margin-bottom:2px}
+  .prize-place{font-size:10px;color:rgba(255,255,255,.72)}
+  .how{margin-bottom:18px}
+  .how-title{font-size:15px;font-weight:900;text-align:center;color:#e0e7ff;margin-bottom:14px}
+  .how-row{display:flex;align-items:flex-start;gap:4px}
+  .how-step{flex:1;text-align:center}
+  .how-icon{width:50px;height:50px;border-radius:50%;margin:0 auto 7px;display:flex;align-items:center;justify-content:center;font-size:22px}
+  .how-lbl{font-size:10px;font-weight:900;color:rgba(255,255,255,.85);line-height:1.4}
+  .how-arr{font-size:16px;color:rgba(255,255,255,.6);margin-top:13px;flex-shrink:0}
+  .trust{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:14px;padding:13px 15px}
+  .trust-left{display:flex;align-items:center;gap:9px}
+  .trust-txt{font-size:11px;line-height:1.55;color:rgba(255,255,255,.65)}
+  .trust-right{text-align:left}
+  .stars{color:#fbbf24;font-size:14px;letter-spacing:1px}
+  .rating{font-size:19px;font-weight:900;color:#fbbf24;line-height:1}
+  .rating-lbl{font-size:9px;color:rgba(255,255,255,.72);margin-top:2px}
+
+  /* OTHER SCREENS */
+  .spage{padding:16px 16px 28px}
+  .pill{display:inline-block;border-radius:99px;padding:4px 15px;font-size:11px;font-weight:900;margin-bottom:11px}
+  .pill-g{background:var(--lime-dark);color:#0f2000}
+  .pill-c{background:var(--cyan);color:#001a1f}
+  .pill-y{background:var(--yellow);color:#1a1000}
+  .pill-f{background:var(--purple);color:#1a0030}
+  .sh2{font-size:26px;font-weight:900;line-height:1.2;margin-bottom:7px}
+  .ssub{font-size:13px;color:rgba(255,255,255,.55);margin-bottom:15px;line-height:1.6}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:15px 16px;margin-bottom:10px}
+  .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+  .pcard{border-radius:14px;border:1px solid var(--border);background:var(--card);color:#fff;font-size:12px;font-weight:900;padding:13px 9px;min-height:64px;text-align:right;line-height:1.4;cursor:pointer;width:100%;transition:all .15s;font-family:inherit}
+  .pcard:hover{background:rgba(255,255,255,.12)}
+  .pcard.on{background:var(--yellow);border-color:var(--yellow);color:#1a1000}
+  .flbl{font-size:14px;font-weight:900;color:rgba(255,255,255,.9);margin-bottom:7px;display:block;margin-top:13px}
+  .flbl:first-child{margin-top:0}
+  .chip{border-radius:99px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#fff;font-size:12px;font-weight:900;padding:7px 13px;cursor:pointer;transition:all .15s;font-family:inherit}
+  .chip.on{background:var(--lime-dark);border-color:var(--lime-dark);color:#0f2000}
+  .gchip{border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.07);color:#fff;font-size:13px;font-weight:900;padding:11px;text-align:right;cursor:pointer;width:100%;transition:all .15s;font-family:inherit}
+  .gchip.on{background:var(--lime-dark);border-color:var(--lime-dark);color:#0f2000}
+  /* ── FIX: inputs are NOT re-rendered on every keystroke ── */
+  .inp{width:100%;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.35);color:#fff;font-size:15px;padding:12px 13px;outline:none;margin-top:5px;font-family:inherit}
+  .inp:focus{border-color:var(--lime-dark)}
+  .fsel{width:100%;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:#080c1a;color:#fff;font-size:13px;padding:12px 13px;outline:none;appearance:none;margin-top:5px;font-family:inherit}
+  .fsel:focus{border-color:var(--lime-dark)}
+  .note{border-radius:11px;border:1px solid rgba(34,211,238,.15);background:rgba(34,211,238,.07);padding:9px 12px;font-size:11px;color:rgba(255,255,255,.6);line-height:1.6;margin:9px 0}
+  .bnote{border-radius:11px;border:1px solid rgba(250,204,21,.2);background:rgba(250,204,21,.07);padding:9px 12px;font-size:11px;color:rgba(255,255,255,.7);line-height:1.6;margin-bottom:9px}
+  .consent{display:flex;align-items:flex-start;gap:10px;background:rgba(0,0,0,.2);border-radius:12px;padding:12px;font-size:11px;line-height:1.75;color:rgba(255,255,255,.65);margin-top:11px;cursor:pointer}
+  .consent input{margin-top:3px;accent-color:var(--lime-dark);width:16px;height:16px;flex-shrink:0}
+  .bigicon{width:90px;height:90px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:44px;margin:10px auto 16px}
+  .bi-g{background:linear-gradient(135deg,var(--lime-dark),var(--cyan))}
+  .bi-l{background:rgba(163,230,53,.12);border:2px solid rgba(163,230,53,.3)}
+  .rbar{margin-bottom:9px}
+  .rbar-top{display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:3px}
+  .rbar-track{height:6px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden}
+  .rbar-fill{height:100%;background:linear-gradient(to left,var(--lime-dark),var(--cyan));border-radius:99px}
+  .btn-p{width:100%;padding:15px;border-radius:14px;background:linear-gradient(to left,var(--lime-dark),var(--cyan));color:#061000;font-size:17px;font-weight:900;border:none;cursor:pointer;margin-top:13px;font-family:inherit;transition:transform .15s}
+  .btn-p:active{transform:scale(.98)}
+  .btn-p:disabled{opacity:.35;cursor:not-allowed;background:rgba(255,255,255,.2);color:rgba(255,255,255,.72)}
+  .back-btn{position:fixed;bottom:18px;left:16px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:999;backdrop-filter:blur(4px);transition:background .2s}
+.back-btn:active{background:rgba(255,255,255,.2)}
+.btn-s{width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:15px;font-weight:900;cursor:pointer;margin-top:9px;font-family:inherit;transition:transform .15s}
+  .btn-s:active{transform:scale(.98)}
+.city-inp{width:100%;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);color:#fff;font-size:15px;font-family:inherit;direction:rtl;margin-bottom:4px;box-sizing:border-box}
+.city-inp:focus{outline:none;border-color:rgba(163,230,53,.5)}
+.city-inp::placeholder{color:rgba(255,255,255,.65)}
+.city-ac{background:#1a1640;border:1px solid rgba(99,102,241,.4);border-radius:10px;max-height:160px;overflow-y:auto;margin-bottom:8px;display:none}
+.city-ac div{padding:9px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.06)}
+.city-ac div:hover,.city-ac div:active{background:rgba(163,230,53,.1);color:#a3e635}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+var step = 0;
+var returnToEnd = false;
+// State for non-input fields (re-rendered safely)
+var S = {party:'', age:'', gender:'', city:'', compass:'', agree:true, updates:true, agree_id4:true, f1:'', f2:'', f3:'', prev:''};
+// Separate state for text inputs - NOT touched by render()
+var T = {id4:'', id4Skipped:false, phone:'', lat:'', lng:'', locOk:false, locStatus:'idle', pushStatus:'idle'};
+
+var PARTIES = ["הליכוד (נתניהו)","ביחד (בנט ולפיד)","ישר (איזנקוט)","עוצמה יהודית (בן גביר)","ש״ס (דרעי)","ישראל ביתנו (ליברמן)","הדמוקרטים (יאיר גולן)","יהדות התורה","רע״ם","חד״ש-תע״ל","הציונות הדתית (סמוטריץ׳)","בל״ד","כחול לבן (גנץ)","מילואימניקים (הנדל)","לא החלטתי","לא אצביע"];
+var FORECAST = ["הליכוד","ביחד","ישר","עוצמה יהודית","ש״ס","ישראל ביתנו","הדמוקרטים","יהדות התורה","רע״ם","חד״ש-תע״ל","הציונות הדתית"];
+var PREV = ["הליכוד – 32 מנדטים","יש עתיד – 24 מנדטים","הציונות הדתית ועוצמה יהודית – 14 מנדטים","המחנה הממלכתי – 12 מנדטים","ש״ס – 11 מנדטים","יהדות התורה – 7 מנדטים","ישראל ביתנו – 6 מנדטים","רע״ם – 5 מנדטים","חד״ש-תע״ל – 5 מנדטים","מפלגת העבודה – 4 מנדטים","מרצ – לא עברה","בל״ד – לא עברה","כלכלה – לא עברה","לא הצבעתי"];
+var AGES = ["18–24","25–34","35–44","45–59","60+"];
+var GENDERS = ["גבר","אישה","אחר / מעדיף לא לציין"];
+var CITIES = ["אבו גוש","אבו סנאן","אום אל-פחם","אופקים","אור יהודה","אור עקיבא","אורנית","אילת","אכסאל","אל-בטוף","אל-טייבה","אל-טירה","אלעד","אעבלין","אפרת","אריאל","אשדוד","אשקלון","באקה אל-גרביה","באר יעקב","באר שבע","בית דגן","בית שאן","בית שמש","בני ברק","בני עי״ש","בת ים","ג׳לג׳וליה","גבעת שמואל","גבעתיים","גדרה","גן יבנה","דאלית אל-כרמל","דימונה","הוד השרון","הרצליה","זכרון יעקב","חדרה","חולון","חיפה","טבריה","טייבה","טירה","טירת כרמל","טמרה","יבנה","יהוד-מונוסון","יוקנעם עילית","ירושלים","כפר יונה","כפר מנדא","כפר סבא","כפר קאסם","כרמיאל","לוד","מגדל העמק","מודיעין-מכבים-רעות","מזכרת בתיה","מעלה אדומים","מעלות-תרשיחא","נהריה","נס ציונה","נצרת","נצרת עילית","נשר","נתיבות","נתניה","סח׳נין","עכו","עפולה","עראבה","ערד","פתח תקווה","צפת","קלנסווה","קריית אונו","קריית אתא","קריית ביאליק","קריית גת","קריית ים","קריית מוצקין","קריית מלאכי","קריית שמונה","ראש העין","ראשון לציון","רהט","רחובות","רמות השבים","רמלה","רמת גן","רמת השרון","שדרות","שעב","תל אביב-יפו","תל מונד","אחר"];
+var R22 = [{n:"הליכוד",s:32},{n:"יש עתיד",s:24},{n:"הציונות הדתית ועוצמה יהודית",s:14},{n:"המחנה הממלכתי",s:12},{n:"ש״ס",s:11},{n:"יהדות התורה",s:7},{n:"ישראל ביתנו",s:6},{n:"רע״ם",s:5},{n:"חד״ש-תע״ל",s:5},{n:"העבודה",s:4},{n:"מרצ",s:0},{n:"בל״ד",s:0},{n:"כלכלה",s:0}];
+var LIVE = [{n:"הליכוד",s:32,c:"#818cf8"},{n:"יש עתיד",s:24,c:"#22d3ee"},{n:"הציונות הדתית",s:14,c:"#4ade80"},{n:"המחנה הממלכתי",s:12,c:"#a3e635"},{n:"ש״ס",s:11,c:"#fb923c"},{n:"יהדות התורה",s:7,c:"#c084fc"},{n:"ישראל ביתנו",s:6,c:"#60a5fa"},{n:"רע״ם",s:5,c:"#34d399"},{n:"חד״ש-תע״ל",s:5,c:"#f43f5e"},{n:"העבודה",s:4,c:"#f472b6"},{n:"מרצ",s:0,c:"#475569"}];
+
+
+function card(i, e) { return '<div class="card"' + (e ? ' style="' + e + '"' : '') + '>' + i + '</div>'; }
+function btnP(t, fn, dis) { return '<button class="btn-p"' + (dis ? ' disabled' : '') + ' onclick="' + fn + '">' + t + ' ›</button>'; }
+function btnSec(t, fn) { return '<button class="btn-s" onclick="' + fn + '">' + t + '</button>'; }
+
+function hdr() {
+  if (step === 0) return '';
+  var prog = Math.round((step / 9) * 100);
+  return '<div class="hdr">'
+    + '<div style="display:flex;align-items:center;gap:7px"><div class="hdr-logo">הסקר של המדינה ✓</div><span style="font-size:22px">🇮🇱</span></div>'
+    + '<div style="display:flex;align-items:center;gap:8px">'
+    + '<span style="font-size:11px;color:rgba(255,255,255,.75)">' + (Math.min(step, 9) + 1) + ' / 10</span>'
+    + '</div></div>'
+    + '<div class="prog-wrap"><div class="prog-fill" style="width:' + prog + '%"></div></div>';
+}
+
+function globalFooter() {
+  return '<div style="text-align:center;padding:20px 16px 32px;font-size:12px;color:rgba(255,255,255,.8);line-height:2.2;border-top:1.5px solid rgba(255,255,255,.25);margin-top:8px">'
+    + '<img src="https://gilboashlomo-code.github.io/HASEKER-/RTV-LOGO.png" style="width:110px;display:block;margin:0 auto 12px;background:#fff;border-radius:8px;padding:6px;opacity:.92" onerror="this.style.display=\'none\'">'
+    + '™ הסקר של המדינה · Patent Pending · כל הזכויות שמורות © 2026<br>'
+    + 'טכנולוגיית VoterTag® · Shlomo Gilboa<br>'
+    + '<a href="#" onclick="showContactForm();return false;" style="color:#a3e635;text-decoration:none;font-weight:700">תקשורת, מכוני מחקר, מועמדים ומפלגות — צרו קשר »</a>'
+    + '<a href="https://gilboashlomo-code.github.io/HASEKER-/haseker_terms.pdf" target="_blank" rel="noopener" style="color:rgba(255,255,255,.65);text-decoration:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:4px 12px;font-size:11px">תנאי שימוש</a>'
+    + '</div>';
+}
+
+function s_end() {
+  var missing = [];
+  if (!/^\d{4}$/.test(T.id4)) missing.push(['אימות הצבעה (4 ספרות)', 50, 'goToId4FromEnd()']);
+  if (!T.phone) missing.push(['מספר טלפון', 50, 'goToPhoneFromEnd()']);
+  var missingHtml = '';
+  if (missing.length) {
+    missingHtml = '<div style="background:rgba(250,204,21,.1);border:1.5px solid rgba(250,204,21,.45);border-radius:14px;padding:14px;margin-bottom:16px">'
+      +'<div style="font-size:16px;font-weight:900;color:#facc15;margin-bottom:4px">⏳ ההזדמנות האחרונה שלך לפני שניפרד!</div>'
+      +'<div style="font-size:12px;color:rgba(255,255,255,.7);margin-bottom:12px">כל שדה מזכה בנקודות בונוס:</div>';
+    missing.forEach(function(m){
+      missingHtml += '<button onclick="'+m[2]+'" style="width:100%;display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:11px;padding:11px 13px;margin-bottom:7px;cursor:pointer;font-family:inherit">'
+        +'<span style="font-size:14px;color:#fff;font-weight:700">'+m[0]+'</span>'
+        +'<span style="font-size:13px;font-weight:900;color:#1a0f4f;background:#a3e635;padding:3px 11px;border-radius:99px">+'+m[1]+' נק׳</span>'
+        +'</button>';
+    });
+    missingHtml += '</div>';
+  }
+  return '<div class="spage sc" style="text-align:center">'
+    +'<div class="sh2" style="font-size:30px;color:#a3e635;margin-bottom:4px">הסקר של המדינה</div>'
+    +'<div style="font-size:16px;font-weight:900;color:#facc15;margin-bottom:16px">בחירות 2026</div>'
+    +'<div class="bigicon bi-g">🎉</div>'
+    +'<div class="sh2">הצטרפת למשחק הניחושים הגדול!</div>'
+    +'<div style="font-size:17px;font-weight:900;color:#a3e635;margin-bottom:8px">בהצלחה! 🇮🇱</div>'
+    +'<div style="font-size:15px;font-weight:700;color:#facc15;margin-bottom:16px;line-height:1.7">ואל תשכח — הכי חשוב זה ללכת להצביע! 🗳️</div>'
+    + missingHtml
+    +'<div style="font-size:14px;color:rgba(255,255,255,.8);line-height:1.8;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);border-radius:14px;padding:14px;margin-bottom:16px">'
+    +'📲 תוצאות הסקר יפורסמו בקבוצת הוואטסאפ.<br>נעדכן אותך אם זכית בפרס.'
+    +'</div>'
+    +'<button class="btn-p" onclick="shareToFriends()">📤 שתפו עם החברים והמשפחה</button>'
+    +'<button class="btn-s" onclick="openContactForm()" style="margin-top:9px;font-size:13px">💼 תקשורת, מכוני מחקר, מועמדים ומפלגות — צרו קשר</button>'
+    +'<button class="btn-s" onclick="finishExit()" style="margin-top:9px;background:rgba(163,230,53,.15);border-color:rgba(163,230,53,.4);color:#a3e635">לסיום — בהצלחה! 🇮🇱</button>'
+    +'</div>';
+}
+
+function goToId4FromEnd() { returnToEnd = true; step = 6; render(); }
+function goToPhoneFromEnd() { returnToEnd = true; step = 2; render(); }
+function shareToFriends() { step = 8; render(); }
+function finishExit() {
+  document.getElementById('app').innerHTML =
+    '<div style="min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px">'
+    + '<div style="font-size:60px;margin-bottom:20px">🇮🇱</div>'
+    + '<div style="font-size:24px;font-weight:900;color:#a3e635;margin-bottom:12px">תודה שהשתתפת!</div>'
+    + '<div style="font-size:16px;color:rgba(255,255,255,.8);line-height:1.8;max-width:300px">הסקר של המדינה — בהצלחה ביום הבחירות!<br>אפשר לסגור את החלון.</div>'
+    + '</div>';
+  window.scrollTo(0,0);
+  setTimeout(function(){ window.close(); }, 1500);
+}
+function openContactForm() { showContactForm(); }
+function showContactForm() {
+  var el = document.createElement('div');
+  el.id = 'contact-overlay';
+  el.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(13,10,46,.97);display:flex;align-items:center;justify-content:center;padding:18px;overflow-y:auto;animation:si .25s ease both';
+  el.innerHTML = '<div style="width:100%;max-width:360px;background:linear-gradient(165deg,#1a0f4f,#0e0730);border:1.5px solid rgba(129,140,248,.4);border-radius:18px;padding:20px;max-height:92vh;overflow-y:auto">'
+    + '<img src="https://gilboashlomo-code.github.io/HASEKER-/RTV-LOGO.png" style="width:160px;display:block;margin:0 auto 14px;background:#fff;border-radius:12px;padding:8px" onerror="this.style.display=\'none\'">'
+    + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">'
+    + '<div>'
+    + '<div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.6);margin-bottom:4px">📬 צור קשר</div>'
+    + '<div style="font-size:22px;font-weight:900;color:#a3e635;line-height:1.1">הסקר של המדינה</div>'
+    + '<div style="font-size:13px;font-weight:700;color:#22d3ee;margin-top:2px">מקבוצת RTV — Real-Time Voter</div></div>'
+    + '<button onclick="document.getElementById(\'contact-overlay\').remove()" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:26px;cursor:pointer;line-height:1">×</button>'
+    + '</div>'
+    + '<div style="font-size:13px;color:rgba(255,255,255,.75);margin:14px 0 4px;font-weight:700">תקשורת · מכוני מחקר · מועמדים · מפלגות</div>'
+    + '<div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:14px">* שדה חובה</div>'
+    + '<label style="font-size:12px;color:rgba(255,255,255,.7);display:block;margin-bottom:4px">שם הגוף *</label>'
+    + '<input id="ct-org" class="inp" type="text" placeholder="שם החברה / הארגון" style="margin-bottom:12px;font-size:15px">'
+    + '<label style="font-size:12px;color:rgba(255,255,255,.7);display:block;margin-bottom:4px">שם הפונה *</label>'
+    + '<input id="ct-name" class="inp" type="text" placeholder="שם מלא" style="margin-bottom:12px;font-size:15px">'
+    + '<label style="font-size:12px;color:rgba(255,255,255,.7);display:block;margin-bottom:4px">סוג הגוף *</label>'
+    + '<select id="ct-type" class="fsel" onchange="showOtherField(this.value)" style="margin-bottom:8px;font-size:15px"><option value="">בחר/י —</option><option>מכון מחקר</option><option>עיתונות / תקשורת</option><option>מפלגה</option><option>מועמד/ת</option><option value="אחר">אחר</option></select>'
+    + '<input id="ct-other" class="inp" type="text" placeholder="מהו הגוף?" style="display:none;margin-bottom:12px;font-size:15px">'
+    + '<label style="font-size:12px;color:rgba(255,255,255,.7);display:block;margin-bottom:4px">טלפון ליצירת קשר *</label>'
+    + '<div style="display:flex;gap:8px;margin-bottom:12px">'
+    + '<input id="ct-area" class="inp" type="tel" inputmode="numeric" maxlength="3" placeholder="קידומת" style="width:90px;flex-shrink:0;font-size:15px;text-align:center">'
+    + '<input id="ct-phone" class="inp" type="tel" inputmode="numeric" maxlength="7" placeholder="מספר" style="flex:1;font-size:15px">'
+    + '</div>'
+    + '<label style="font-size:12px;color:rgba(255,255,255,.7);display:block;margin-bottom:4px">הודעה</label>'
+    + '<textarea id="ct-msg" class="inp" rows="4" maxlength="1000" placeholder="במה נוכל לעזור? (עד 1000 תווים)" style="margin-bottom:6px;resize:vertical;font-family:inherit;font-size:15px"></textarea>'
+    + '<div id="ct-count" style="text-align:left;font-size:11px;color:rgba(255,255,255,.5);margin-bottom:12px">0 / 1000</div>'
+    + '<div id="ct-err" style="display:none;font-size:12px;color:#f87171;margin-bottom:10px;font-weight:700">נא למלא את כל שדות החובה (*)</div>'
+    + '<button id="ct-send" class="btn-p" onclick="submitContact()">שגר ›</button>'
+    + '</div>';
+  document.body.appendChild(el);
+  var msg = document.getElementById('ct-msg');
+  if (msg) msg.oninput = function() {
+    var c = document.getElementById('ct-count');
+    if (c) c.textContent = msg.value.length + ' / 1000';
+  };
+}
+function showOtherField(val) {
+  var f = document.getElementById('ct-other');
+  if (f) f.style.display = val === 'אחר' ? 'block' : 'none';
+}
+function submitContact() {
+  var org = (document.getElementById('ct-org')||{}).value || '';
+  var name = (document.getElementById('ct-name')||{}).value || '';
+  var type = (document.getElementById('ct-type')||{}).value || '';
+  var other = (document.getElementById('ct-other')||{}).value || '';
+  var area = (document.getElementById('ct-area')||{}).value || '';
+  var num = (document.getElementById('ct-phone')||{}).value || '';
+  var phone = area && num ? area + '-' + num : (area || num);
+  var msg = (document.getElementById('ct-msg')||{}).value || '';
+  var finalType = type === 'אחר' ? ('אחר: ' + other) : type;
+  if (!name.trim() || !type || !phone.trim()) {
+    var e = document.getElementById('ct-err'); if (e) e.style.display = 'block';
+    return;
+  }
+  var row = { type:'CONTACT', timestamp:new Date().toISOString(), org:org, name:name, gtype:finalType, phone:phone, message:msg };
+  if (SHEETS_URL && SHEETS_URL.indexOf('PASTE_') !== 0) {
+    fetch(SHEETS_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(row) }).catch(function(){});
+  }
+  var ov = document.getElementById('contact-overlay');
+  if (ov) ov.innerHTML = '<div style="text-align:center;color:#fff;padding:40px 20px"><div style="font-size:48px;margin-bottom:14px">✓</div><div style="font-size:20px;font-weight:900;margin-bottom:8px">הפנייה נשלחה!</div><div style="font-size:14px;color:rgba(255,255,255,.75);margin-bottom:20px">נחזור אליך בהקדם.</div><button class="btn-p" onclick="document.getElementById(\'contact-overlay\').remove()" style="max-width:200px">סגור</button></div>';
+}
+
+function render() {
+  var fns = [s0, s1, s2, s4, s5, s7_sum, s_id4, s3, s7_share, s_end];
+  var DEBUG = /[?&]debug=1/.test(window.location.search);
+  var backBtn = (DEBUG && step > 0) ? '<button class="back-btn" onclick="back()" title="אחורה (debug)" style="left:16px;right:auto">&#8594;</button>' : '';
+  var nextBtn = (DEBUG && step < 9) ? '<button class="back-btn" onclick="go()" title="קדימה (debug)" style="left:auto;right:16px">&#8592;</button>' : '';
+  document.getElementById('app').innerHTML = hdr() + fns[step]() + globalFooter() + backBtn + nextBtn;
+  if (returnToEnd && (step === 2 || step === 6)) {
+    // חזרה משדה חסר - גלילה לשדה הרלוונטי במקום לראש הדף
+    setTimeout(function() {
+      var target = step === 6 ? document.getElementById('inp-id4')
+                              : document.getElementById('inp-phone');
+      if (target) target.scrollIntoView({behavior:'smooth', block:'center'});
+    }, 100);
+  } else {
+    window.scrollTo(0, 0);
+  }
+  if (step === 6) bindId4Input();
+  if (step === 2) bindDetailInputs();
+  if (step === 4) bindBonusSelects();
+  if (step === 0) startCount();
+  if (step === 9) submitSurvey();
+}
+
+var COUNT = 0, CTIMER = null;
+var LIVE_COUNT = 0, LIVE_TIMER = null;
+
+function getHourRange() {
+  var h = new Date().getHours();
+  if (h >= 0  && h < 6)  return {min:3,   max:15};
+  if (h >= 6  && h < 9)  return {min:15,  max:80};
+  if (h >= 9  && h < 14) return {min:80,  max:400};
+  if (h >= 14 && h < 18) return {min:200, max:600};
+  if (h >= 18 && h < 23) return {min:400, max:850};
+  return {min:50, max:200};
+}
+
+function startCount() {
+  // ── מונה משתתפים כולל ──
+  if (COUNT === 0) {
+    var base = 12574;
+    try { var st = parseInt(localStorage.getItem('hsk_c') || '0', 10); if (st > base) base = st; } catch (e) {}
+    // כל כניסה מוסיפה 5
+    COUNT = base + 5;
+    try { localStorage.setItem('hsk_c', COUNT); } catch(e) {}
+  }
+  var el = document.getElementById('pcount');
+  if (el) el.textContent = COUNT.toLocaleString('he-IL');
+}
+
+// ── BIND TEXT INPUTS — update T only, no render() ──
+
+function onCityInput(v){
+  S.city=v; updateSubmitBtn();
+  var ac=document.getElementById('city-ac');
+  if(!ac)return;
+  if(v.length<1){ac.style.display='none';return;}
+  var m=CITIES.filter(function(c){return c.indexOf(v)!==-1;}).slice(0,6);
+  if(!m.length){ac.style.display='none';return;}
+  ac.innerHTML=m.map(function(c){return '<div data-c="'+c+'" onclick="selectCity(this.dataset.c)">'+c+'</div>';}).join('');
+  ac.style.display='block';
+}
+function selectCity(c){
+  S.city=c;
+  var i=document.getElementById('city-inp');if(i)i.value=c;
+  var ac=document.getElementById('city-ac');if(ac)ac.style.display='none';
+  updateSubmitBtn();
+}
+function bindDetailInputs() {
+  var ci = document.getElementById('city-inp');
+  if (ci) ci.value = S.city || '';
+  var pr = document.getElementById('sel-prefix');
+  if (pr && T.phonePrefix) pr.value = T.phonePrefix;
+  var ph = document.getElementById('inp-phone');
+  if (ph && T.phone) ph.value = T.phone.slice(T.phonePrefix ? T.phonePrefix.length : 3);
+  var cb = document.getElementById('chk-agree-demo');
+  if (cb) cb.checked = !!S.agree_demo;
+  updateSubmitBtn();
+}
+
+function updateSubmitBtn() {
+  var btn = document.getElementById('submit-btn');
+  var missing = [];
+  if (!S.age) missing.push('גיל');
+  if (!S.gender) missing.push('מגדר');
+  if (!S.city) missing.push('ישוב');
+  if (!S.compass) missing.push('סולם ערכי');
+  if (!S.agree_demo) missing.push('אישור הצהרת גיל וזכאות');
+  var ok = missing.length === 0;
+  if (btn) btn.disabled = false; // always allow continuing
+  var err = document.getElementById('demo-err');
+  if (err) {
+    if (!ok && (S.age || S.gender || S.city || S.compass)) {
+      err.textContent = 'נא להשלים: ' + missing.join(', ');
+      err.style.display = 'block';
+    } else {
+      err.style.display = 'none';
+    }
+  }
+}
+
+function bindBonusSelects() {
+  ['f1','f2','f3','prev'].forEach(function(k) {
+    var el = document.getElementById('sel-' + k);
+    if (el) el.addEventListener('change', function() {
+      S[k] = this.value;
+      // re-render רק לשלושת שדות הניחוש כדי לעדכן disabled
+      if (k !== 'prev') render();
+    });
+  });
+}
+
+/* ── S0 LANDING ── */
+function s0() {
+  var cols = ['#d4f542','#6366f1','#f97316','#22d3ee','#f43f5e','#a855f7','#fbbf24','#34d399','#ec4899','#10b981'];
+  var conf = '';
+  for (var i = 0; i < 35; i++) {
+    var l = Math.floor(Math.random()*100), del = (Math.random()*4).toFixed(2), dur = (2.5+Math.random()*4).toFixed(1);
+    var w = Math.floor(5+Math.random()*9), h = Math.floor(10+Math.random()*18), c = cols[i%cols.length];
+    conf += '<div class="cd" style="left:'+l+'%;width:'+w+'px;height:'+h+'px;background:'+c+';animation-duration:'+dur+'s;animation-delay:'+del+'s;top:-30px;opacity:.9"></div>';
+  }
+
+  // Phone mockup bars — ממוצע הסקרים המשוקלל (סקר הסקרים) — כל המפלגות
+  var phoneBars = [
+    {n:'ליכוד (נתניהו)',s:22.4,c:'#38bdf8'},
+    {n:'ישר! (איזנקוט)',s:22.2,c:'#818cf8'},
+    {n:'ביחד (בנט)',s:15.8,c:'#22d3ee'},
+    {n:'ישראל ביתנו (ליברמן)',s:9.8,c:'#fb7185'},
+    {n:'הדמוקרטים (גולן)',s:9.6,c:'#60a5fa'},
+    {n:'יהדות התורה (גולדקנופף)',s:8.0,c:'#f97316'},
+    {n:'עוצמה יהודית (בן גביר)',s:7.8,c:'#fb923c'},
+    {n:'ש"ס (דרעי)',s:7.8,c:'#c084fc'},
+    {n:'חד"ש-תע"ל (ג\'בארין-טיבי)',s:5.1,c:'#f43f5e'},
+    {n:'רע"מ (עבאס)',s:4.8,c:'#34d399'},
+    {n:'הציונות הדתית (סמוטריץ\')',s:4.7,c:'#a3e635'},
+    {n:'יסודות ישראל (הנדל-טרופר)',s:0,c:'#475569',p:'1.7%'},
+    {n:'כחול לבן (גנץ)',s:0,c:'#475569',p:'1.9%'},
+    {n:'בל"ד (אבו שחאדה)',s:0,c:'#475569',p:'1.3%'}
+  ].map(function(r){
+    var val = r.p ? '<span style="color:rgba(255,255,255,.72)">'+r.p+'</span>' : (r.s % 1 === 0 ? r.s.toFixed(0) : r.s.toFixed(1));
+    var w = r.p ? 3 : Math.round(r.s/24*90);
+    return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'
+      +'<div style="width:70px;font-size:9.5px;font-weight:700;text-align:right;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+r.n+'</div>'
+      +'<div style="flex:1;height:5px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden"><div style="height:100%;width:'+w+'%;background:'+r.c+';border-radius:99px"></div></div>'
+      +'<div style="width:34px;font-size:9.5px;font-weight:900;color:rgba(255,255,255,.75);text-align:left">'+val+'</div>'
+      +'</div>';
+  }).join('');
+
+  return '<div class="land sc" style="background:linear-gradient(160deg,#0e0730 0%,#130a3a 30%,#0a0d2e 60%,#060d24 100%);padding:0 0 24px">'
+    +'<div class="confetti">'+conf+'</div>'
+    +'<div style="position:relative;z-index:1">'
+
+    // ── TOP BAR: logo left + flag center + live counter right ──
+    +'<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px">'
+      +'<div style="background:rgba(30,20,80,.8);border:1.5px solid #5b50e0;border-radius:10px;padding:6px 11px;display:flex;align-items:center;gap:5px">'
+        +'<span style="font-size:13px;font-weight:900;color:#c7d2fe">הסקר</span>'
+        +'<span style="font-size:10px;font-weight:700;color:#a5b4fc">של המדינה</span>'
+        +'<div style="width:18px;height:18px;background:#22c55e;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff">✓</div>'
+      +'</div>'
+      +'<span style="font-size:32px;filter:drop-shadow(0 2px 8px rgba(0,0,0,.5))">🇮🇱</span>'
+    +'</div>'
+
+    // ── HERO: headline LEFT + phone mockup RIGHT ──
+    +'<div style="display:flex;align-items:flex-start;gap:0;padding:0 14px">'
+
+      // Left: headline + tagline
+      +'<div style="flex:1;min-width:0;padding-left:8px">'
+        +'<div style="font-size:38px;font-weight:900;line-height:1.0;margin-bottom:8px;text-shadow:0 2px 20px rgba(0,0,0,.6)">'
+          +'<span style="color:#fff">אם הבחירות</span><br>'
+          +'<span style="color:#fff">היו היום</span><br>'
+          +'<span style="color:#fff">— </span><span style="color:#d4f542">למי היית</span><br>'
+          +'<span style="color:#d4f542">מצביע?</span>'
+        +'</div>'
+        +'<div style="font-size:13px;color:rgba(255,255,255,.85);font-weight:700;margin-bottom:2px">השתתפו במשחק התחזיות הגדול בישראל</div>'
+        +'<div style="font-size:13px;color:#d4f542;font-weight:900;margin-bottom:14px">וזכו בפרסים שווים!</div>'
+      +'</div>'
+
+      // Right: phone mockup
+      +'<div style="width:170px;flex-shrink:0">'
+        +'<div style="background:linear-gradient(160deg,#1a1560,#0c0b2e);border:2px solid rgba(120,100,255,.6);border-radius:22px;padding:10px;box-shadow:0 0 30px rgba(99,102,241,.4)">'
+          +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">'
+            +'<div style="background:#6366f1;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:900;display:flex;align-items:center;gap:3px"><div style="width:5px;height:5px;background:#fff;border-radius:50%;animation:pu 1s infinite"></div>מעודכן</div>'
+            +'<span style="font-size:11px;font-weight:900;color:#e0e7ff">תוצאות משוקללות של הסקר</span>'
+          +'</div>'
+          +'<div style="font-size:9px;color:rgba(255,255,255,.72);margin-bottom:8px;text-align:center">עדכון אחרון: 15/07/2026</div>'
+          +phoneBars
+        +'</div>'
+      +'</div>'
+    +'</div>'
+
+    // ── FEAT BADGES: 4 icons ──
+    +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:14px 14px 0">'
+      +'<div style="background:rgba(212,245,66,.15);border:2px solid rgba(212,245,66,.55);border-radius:13px;padding:12px 5px;text-align:center"><div style="font-size:26px;margin-bottom:5px">🛡</div><div style="font-size:17px;font-weight:900;color:#d4f542">חינם</div><div style="font-size:12px;color:rgba(212,245,66,.85);margin-top:2px;font-weight:700">לגמרי</div></div>'
+      +'<div style="background:rgba(34,211,238,.18);border:2px solid rgba(34,211,238,.7);border-radius:13px;padding:12px 5px;text-align:center"><div style="font-size:26px;margin-bottom:5px">🔒</div><div style="font-size:17px;font-weight:900;color:#22d3ee">100%</div><div style="font-size:15px;color:#22d3ee;margin-top:2px;font-weight:900">אנונימי</div></div>'
+      +'<div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:13px;padding:10px 5px;text-align:center"><div style="font-size:22px;margin-bottom:5px">⚡</div><div style="font-size:13px;font-weight:900">3 דקות</div><div style="font-size:11px;color:rgba(255,255,255,.55);margin-top:2px">בלבד</div></div>'
+      +'<div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:13px;padding:10px 5px;text-align:center"><div style="font-size:22px;margin-bottom:5px">🎁</div><div style="font-size:13px;font-weight:900">מלא</div><div style="font-size:11px;color:rgba(255,255,255,.55);margin-top:2px">פרסים</div></div>'
+    +'</div>'
+
+    // ── CTA BUTTON ──
+    +'<div style="padding:16px 14px 4px">'
+      +'<button class="cta" onclick="go()" style="font-size:22px;padding:18px;border-radius:16px;box-shadow:0 4px 30px rgba(212,245,66,.35)">מתחילים עכשיו ›</button>'
+    +'</div>'
+
+    // ── SOCIAL PROOF ──
+    +'<div style="display:flex;align-items:center;justify-content:center;gap:9px;font-size:12px;color:rgba(255,255,255,.55);padding:8px 14px 14px">'
+      +'<div style="display:flex"><div style="width:25px;height:25px;border-radius:50%;border:2px solid #0d0a2e;margin-left:-7px;background:#6366f1;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center">א</div><div style="width:25px;height:25px;border-radius:50%;border:2px solid #0d0a2e;margin-left:-7px;background:#f97316;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center">מ</div><div style="width:25px;height:25px;border-radius:50%;border:2px solid #0d0a2e;margin-left:-7px;background:#22d3ee;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center">ד</div><div style="width:25px;height:25px;border-radius:50%;border:2px solid #0d0a2e;background:#a855f7;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center">ר</div></div>'
+      +'<span><strong id="pcount" style="color:#d4f542">4,847</strong> כבר השתתפו</span>'
+    +'</div>'
+
+    // ── PRIZES SECTION ──
+    +'<div style="background:rgba(80,60,180,.15);border:1.5px solid rgba(120,90,255,.35);border-radius:20px;margin:0 14px 16px;padding:14px 12px">'
+      +'<div style="background:rgba(100,80,200,.3);border:1px solid rgba(140,110,255,.4);border-radius:99px;padding:6px 16px;display:inline-flex;align-items:center;gap:6px;margin-bottom:13px;width:100%;justify-content:center">'
+        +'<span style="font-size:16px">🏆</span><span style="font-size:14px;font-weight:900;color:#c7d2fe">הפרסים שיחולקו</span>'
+      +'</div>'
+      +'<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">'
+        +'<div style="background:rgba(0,0,0,.35);border:1.5px solid rgba(212,245,66,.3);border-radius:12px;padding:8px 5px;text-align:center"><div style="font-size:22px;margin-bottom:4px">📱</div><div style="font-size:10px;font-weight:900;color:#e0e7ff">iPhone 15 Pro</div><div style="font-size:9px;color:rgba(255,255,255,.75);margin-top:2px">מקום 1</div></div>'
+        +'<div style="background:rgba(0,0,0,.35);border:1.5px solid rgba(212,245,66,.3);border-radius:12px;padding:8px 5px;text-align:center"><div style="font-size:22px;margin-bottom:4px">💻</div><div style="font-size:10px;font-weight:900;color:#e0e7ff">MacBook Air</div><div style="font-size:9px;color:rgba(255,255,255,.75);margin-top:2px">מקום 2</div></div>'
+        +'<div style="background:rgba(0,0,0,.35);border:1.5px solid rgba(212,245,66,.3);border-radius:12px;padding:8px 5px;text-align:center"><div style="font-size:22px;margin-bottom:4px">✈️</div><div style="font-size:10px;font-weight:900;color:#e0e7ff">חופשה זוגית</div><div style="font-size:9px;color:rgba(255,255,255,.75);margin-top:2px">מקום 3</div></div>'
+        +'<div style="background:rgba(0,0,0,.35);border:1.5px solid rgba(212,245,66,.3);border-radius:12px;padding:8px 5px;text-align:center"><div style="font-size:22px;margin-bottom:4px">💵</div><div style="font-size:10px;font-weight:900;color:#e0e7ff">₪1,000 במזומן</div><div style="font-size:9px;color:rgba(255,255,255,.75);margin-top:2px">4-10 מקומות</div></div>'
+        +'<div style="background:rgba(0,0,0,.35);border:1.5px solid rgba(212,245,66,.3);border-radius:12px;padding:8px 5px;text-align:center"><div style="font-size:14px;font-weight:900;color:#f97316;margin-bottom:2px">BUYME</div><div style="font-size:10px;font-weight:900;color:#e0e7ff">₪500 שי</div><div style="font-size:9px;color:rgba(255,255,255,.75);margin-top:2px">11-50 מקומות</div></div>'
+      +'</div>'
+    +'</div>'
+
+    // ── HOW IT WORKS ──
+    +'<div style="padding:0 14px 16px">'
+      +'<div style="font-size:16px;font-weight:900;text-align:center;color:#fff;margin-bottom:14px">איך זה עובד?</div>'
+      +'<div style="display:flex;align-items:flex-start;gap:4px">'
+        +'<div style="flex:1;text-align:center"><div style="width:52px;height:52px;border-radius:50%;background:rgba(99,102,241,.2);border:1.5px solid rgba(99,102,241,.5);margin:0 auto 7px;display:flex;align-items:center;justify-content:center;font-size:22px">📋</div><div style="font-size:10px;font-weight:900;color:rgba(255,255,255,.85);line-height:1.4">עונים על שאלון קצר אנונימי וללא סיסמאות</div></div>'
+        +'<div style="font-size:16px;color:rgba(255,255,255,.65);margin-top:14px;flex-shrink:0">←</div>'
+        +'<div style="flex:1;text-align:center"><div style="width:52px;height:52px;border-radius:50%;background:rgba(34,211,238,.15);border:1.5px solid rgba(34,211,238,.4);margin:0 auto 7px;display:flex;align-items:center;justify-content:center;font-size:22px">📊</div><div style="font-size:10px;font-weight:900;color:rgba(255,255,255,.85);line-height:1.4">בוחרים תחזיות למנדטים ולקואליציה</div></div>'
+        +'<div style="font-size:16px;color:rgba(255,255,255,.65);margin-top:14px;flex-shrink:0">←</div>'
+        +'<div style="flex:1;text-align:center"><div style="width:52px;height:52px;border-radius:50%;background:rgba(163,230,53,.15);border:1.5px solid rgba(163,230,53,.35);margin:0 auto 7px;display:flex;align-items:center;justify-content:center;font-size:22px">🏆</div><div style="font-size:10px;font-weight:900;color:rgba(255,255,255,.85);line-height:1.4">צוברים נקודות ומטפסים בדירוג</div></div>'
+        +'<div style="font-size:16px;color:rgba(255,255,255,.65);margin-top:14px;flex-shrink:0">←</div>'
+        +'<div style="flex:1;text-align:center"><div style="width:52px;height:52px;border-radius:50%;background:rgba(250,204,21,.15);border:1.5px solid rgba(250,204,21,.35);margin:0 auto 7px;display:flex;align-items:center;justify-content:center;font-size:22px">🎁</div><div style="font-size:10px;font-weight:900;color:#d4f542;line-height:1.4">זוכים בפרסים מטורפים!</div></div>'
+      +'</div>'
+    +'</div>'
+
+    // ── TRUST BAR ──
+    +'<div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:13px 15px;margin:0 14px">'
+      +'<div style="display:flex;align-items:center;gap:9px">'
+        +'<span style="font-size:26px">🛡</span>'
+        +'<div><div style="font-size:12px;font-weight:900;color:#e0e7ff;margin-bottom:2px">המידע שלך בטוח איתנו!</div><div style="font-size:11px;color:rgba(255,255,255,.55);line-height:1.5">המשתתפים נשארים אנונימיים<br>והמידע משמש לסטטיסטיקות בלבד.</div></div>'
+      +'</div>'
+      +'<div style="text-align:left">'
+        +'<div style="display:flex;margin-bottom:3px"><div style="width:22px;height:22px;border-radius:50%;background:#6366f1;border:2px solid #0d0a2e;margin-left:-5px;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center">א</div><div style="width:22px;height:22px;border-radius:50%;background:#f97316;border:2px solid #0d0a2e;margin-left:-5px;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center">מ</div><div style="width:22px;height:22px;border-radius:50%;background:#22d3ee;border:2px solid #0d0a2e;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center">ד</div></div>'
+        +'<div style="color:#fbbf24;font-size:13px;letter-spacing:1px">★★★★★</div>'
+        +'<div style="font-size:18px;font-weight:900;color:#fbbf24;line-height:1">4.9</div>'
+        +'<div style="font-size:9px;color:rgba(255,255,255,.72)">דירוג המשתמשים</div>'
+      +'</div>'
+    +'</div>'
+
+  +'</div></div>';
+}
+
+/* ── S1 PARTY ── */
+function s1() {
+  var cards = PARTIES.map(function(p, i) {
+    return '<button class="pcard' + (S.party === p ? ' on' : '') + '" onclick="pickP(' + i + ')">' + p + '</button>';
+  }).join('');
+  return '<div class="spage sc">'
+    + '<div class="sh2">אם הבחירות היו היום — למי היית מצביע?</div>'
+    + '<div class="ssub">בחירה אחת. המסך יעבור אוטומטית.</div>'
+    + '<div class="pgrid">' + cards + '</div></div>';
+}
+function pickP(i) { S.party = PARTIES[i]; render(); setTimeout(go, 200); }
+
+/* ── S_ID4 — מסך 4 ספרות (עצמאי, אחרי בחירת מפלגה) ── */
+function s_id4() {
+  return '<div class="spage sc">'
+    +'<span class="pill pill-g">בונוס מיוחד למאומתים</span>'
+    +'<div class="sh2">רוצה להגן על הקול שלך?</div>'
+    +'<div class="ssub" style="color:rgba(255,255,255,.9);font-size:14px;line-height:1.9">'
+    +'על מנת למנוע הטיית הסקר על ידי הצבעות כפולות וזדוניות, נבקש שתרשום כאן רק את 4 הספרות האחרונות של ת"ז — <strong style="color:#facc15">בדיוק כמו בלוטו</strong> — שמאמת את הזכייה שלך, בלי לחשוף את זהותך.<br><br>'
+    +'4 ספרות אחרונות של ת"ז מונעות הצבעות כפולות והטיה זדונית מכוונת — זו גם הדרך שלנו לאמת שהרשומה היא אכן שלך לצורך קבלת פרס. '
+    +'<strong style="color:#a3e635">🏆 מוסיף 50 נקודות בונוס — לוקח 10 שניות</strong>'
+    +'</div>'
+    +card(
+        '<span class="flbl">4 ספרות אחרונות של תעודת זהות</span>'
+        +'<input id="inp-id4" class="inp" type="text" inputmode="numeric" maxlength="4" placeholder="_ _ _ _" style="letter-spacing:.55em;font-size:28px;text-align:center;padding:20px;border:2px solid rgba(163,230,53,.5)">'
+        +'<label class="consent" style="margin-top:14px"><input id="inp-agree-id4" type="checkbox" checked><span style="font-size:13px;color:rgba(255,255,255,.85);line-height:1.8">אני מצהיר/ה: אלו 4 הספרות האחרונות של תעודת הזיהוי שלי, וידוע לי שהפרסים יחולקו רק כנגד הצגת תעודת הזיהוי שלי. ידוע לי שהנתונים, הניקוד והפרסים לא יחושבו אם תתגלה כפילות.</span></label>'
+      )
+    +'<button id="id4-submit-btn" class="btn-p" onclick="go()" disabled>המשך לסיכום +50 נקודות ›</button>'
+    +'<img src="https://gilboashlomo-code.github.io/HASEKER-/ChatGPT%20Image%20May%2022%2C%202026%2C%2010_45_25%20PM.png" style="width:100%;border-radius:14px;margin-top:16px;margin-bottom:16px;display:block" onerror="this.style.display=\'none\'">'
+    +'<button class="btn-s" onclick="T.id4Skipped=true;go()" style="margin-top:0;padding:14px">'
+    +'המשך בלי אימות ובלי השתתפות'
+    +'<br><span style="font-size:11px;font-weight:400;color:rgba(255,255,255,.55)">(קולות סתמיים שאינם מאומתים לא נספרים)</span>'
+    +'</button>'
+    +'</div>';
+}
+
+function bindId4Input() {
+  var id4el = document.getElementById('inp-id4');
+  var cbel  = document.getElementById('inp-agree-id4');
+  function upd() {
+    var btn = document.getElementById('id4-submit-btn');
+    if (btn) btn.disabled = !(/^\d{4}$/.test(T.id4) && S.agree_id4);
+  }
+  if (id4el) {
+    id4el.value = T.id4;
+    id4el.addEventListener('input', function() {
+      T.id4 = this.value.replace(/\D/g,'').slice(0,4);
+      this.value = T.id4;
+      upd();
+    });
+  }
+  if (cbel) {
+    cbel.checked = !!S.agree_id4;
+    cbel.addEventListener('change', function() {
+      S.agree_id4 = this.checked;
+      upd();
+    });
+  }
+}
+
+function skipId4() {
+  T.id4 = '';
+  T.id4Skipped = true;
+  go();
+}
+
+/* ── S2 DETAILS — inputs use IDs, bound after render ── */
+function s2() {
+  var ages = AGES.map(function(a) {
+    return '<button class="chip' + (S.age === a ? ' on' : '') + '" onclick="ss(\'age\',\'' + a + '\');updateSubmitBtn()">' + a + '</button>';
+  }).join('');
+  var gens = GENDERS.map(function(g, i) {
+    return '<button class="gchip' + (S.gender === g ? ' on' : '') + '" onclick="ssGender(' + i + ');updateSubmitBtn()">' + g + '</button>';
+  }).join('');
+
+  return '<div class="spage sc"><span class="pill pill-c">דיוק הסקר</span>'
+    + '<div class="sh2">עוד כמה פרטים כלליים</div>'
+    + '<div class="ssub" style="color:rgba(255,255,255,.85)">לחיתוך דמוגרפי מדויק. הכל אנונימי.</div>'
+    + card(
+        '<span class="flbl" style="margin-top:0">תחום גיל</span>'
+        + '<div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:13px">' + ages + '</div>'
+        + '<span class="flbl">מגדר</span>'
+        + '<div style="display:grid;gap:7px;margin-bottom:13px">' + gens + '</div>'
+        + '<span class="flbl">ישוב — הקלד/י שם</span>'
+        + '<input id="city-inp" class="city-inp" type="text" placeholder="לדוגמה: תל אביב, חיפה, ירושלים..." autocomplete="off" oninput="onCityInput(this.value)">'
+        + '<div id="city-ac" class="city-ac"></div>'
+        + '<span class="flbl">איך היית מגדיר/ה את מיקומך בסולם הערכים?</span>'
+        + '<div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:10px">בלי קשר להצבעתך · הקש/י על נקודה</div>'
+        + '<div id="compass-holder">' + compassBar() + '</div>'
+        + '<span class="flbl">טלפון / WhatsApp <span style="font-weight:400;color:rgba(255,255,255,.6)">(לא חובה)</span></span>'
+        + '<div style="font-size:13px;font-weight:700;color:rgba(255,255,255,.85);line-height:1.8;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);border-radius:12px;padding:12px 14px;margin-bottom:10px">'
+        + '📲 הטלפון אינו חובה — אבל יצרף אותך לקבוצת הוואטסאפ שבה תוכל לראות את המצב בסקר בכל רגע, לקבל עדכונים שוטפים במהלך יום הבחירות הרבה לפני כולם — ולדעת באם זכית באחד מהפרסים.'
+        + '</div>'
+        + '<div style="display:flex;flex-direction:row;gap:8px;direction:ltr">'
+        + '<select id="sel-prefix" class="fsel" style="width:115px;flex-shrink:0;direction:rtl;font-size:13px" onchange="onPhoneChange()">'
+        + '<option value="">קידומת ▾</option>'
+        + ['050','051','052','053','054','055','056','057','058','059'].map(function(p){return '<option value="'+p+'"'+(T.phonePrefix===p?' selected':'')+'>'+p+'</option>';}).join('')
+        + '</select>'
+        + '<input id="inp-phone" class="inp" type="tel" inputmode="numeric" maxlength="7" placeholder="1234567" style="flex:1;font-size:16px;text-align:center;letter-spacing:.08em;direction:ltr" oninput="onPhoneChange()">'
+        + '</div>'
+        + '<div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:5px;text-align:center">קידומת משמאל · 7 ספרות מימין</div>'
+        + '<div style="font-size:13px;font-weight:700;color:rgba(255,255,255,.8);margin-top:10px;line-height:1.8;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);border-radius:12px;padding:11px 14px">'
+        + '📲 הצטרף/י לקבוצת הוואטסאפ — עדכונים שוטפים ביום הבחירות <strong style="color:#facc15">הרבה לפני כולם</strong> + הודעה אם זכית.'
+        + '</div>'
+        + '<label class="consent" style="margin-top:12px"><input id="chk-agree-demo" type="checkbox" onchange="S.agree_demo=this.checked;updateSubmitBtn()"><span style="font-size:13px;color:rgba(255,255,255,.85)">אני מאשר/ת שאני מעל גיל 18, בעל/ת זכות בחירה בישראל, ומתחייב/ת להשתתף "בסקר של המדינה" פעם אחת בלבד.</span></label>'
+        + '<label class="consent" style="margin-top:10px"><input id="chk-updates" type="checkbox" checked onchange="S.updates=this.checked"><span style="font-size:13px;color:rgba(255,255,255,.85)">אשמח לקבל עדכונים, ותזכורת חכמה ביום הבחירות שתסייע לי למצוא את הקלפי שלי ולממש את זכות ההצבעה.</span></label>'
+      )
+    + '<div id="demo-err" style="display:none;font-size:12px;color:#f87171;text-align:center;margin-bottom:8px;font-weight:700">נא להשלים את השדות החסרים: גיל, מגדר, ישוב ואישור גיל 18</div>'
+    + '<button id="submit-btn" class="btn-p" onclick="go()" disabled>המשך ›</button>'
+    + '</div>';
+}
+
+function ssGender(i) { S.gender = GENDERS[i]; render(); }
+
+var COMPASS_OPTS = ['ימין מלא','ימין רך','מרכז־ימין','מרכז','מרכז־שמאל','שמאל רך','שמאל עמוק'];
+var COMPASS_COLS = ['#185FA5','#378ADD','#85B7EB','#9ca3af','#F09595','#E24B4A','#A32D2D'];
+function compassBar() {
+  var dots = COMPASS_OPTS.map(function(o, i) {
+    var on = S.compass === o;
+    return '<button type="button" onclick="setCompass('+i+')" aria-label="'+o+'" '
+      + 'style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;background:transparent;border:none;cursor:pointer;padding:2px 0">'
+      + '<span style="font-size:9px;line-height:1.15;height:22px;display:flex;align-items:flex-end;text-align:center;font-weight:700;color:'+(on?COMPASS_COLS[i]:'rgba(255,255,255,.6)')+'">'+o+'</span>'
+      + '<span style="width:18px;height:18px;border-radius:50%;border:2px solid '+COMPASS_COLS[i]+';background:'+(on?COMPASS_COLS[i]:'transparent')+';transform:'+(on?'scale(1.35)':'scale(1)')+';transition:transform .1s"></span>'
+      + '</button>';
+  }).join('');
+  var lbl = S.compass ? 'מיקום ערכי נבחר: '+S.compass : 'טרם נבחר';
+  var lblCol = S.compass ? COMPASS_COLS[COMPASS_OPTS.indexOf(S.compass)] : 'rgba(255,255,255,.55)';
+  return '<div style="margin-bottom:14px">'
+    + '<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:2px;margin-bottom:6px">'+dots+'</div>'
+    + '<div style="height:4px;border-radius:99px;background:linear-gradient(90deg,#A32D2D,#d98a8a,#9ca3af,#85B7EB,#185FA5);margin:0 9px 8px"></div>'
+    + '<div style="text-align:center;font-size:13px;font-weight:700;color:'+lblCol+'">'+lbl+'</div>'
+    + '</div>';
+}
+function setCompass(i) {
+  S.compass = COMPASS_OPTS[i];
+  // עדכון רק של הסרגל - בלי render מלא שגולל לראש
+  var holder = document.getElementById('compass-holder');
+  if (holder) { holder.innerHTML = compassBar(); }
+  else { render(); }
+}
+
+
+function onPhoneChange() {
+  var prefix = (document.getElementById('sel-prefix') || {}).value || '';
+  var num = (document.getElementById('inp-phone') || {}).value || '';
+  num = num.replace(/\D/g,'').slice(0,7);
+  var inp = document.getElementById('inp-phone');
+  if (inp) inp.value = num;
+  T.phonePrefix = prefix;
+  T.phone = (prefix && num.length === 7) ? prefix + num : '';
+  var err = document.getElementById('phone-err');
+  if (err) err.style.display = (prefix && num.length > 0 && !T.phone) ? 'block' : 'none';
+  updateSubmitBtn();
+}
+
+function showLocOverlay(callback) {
+  // יוצר overlay זמני עם הכנה להודעה הגנרית
+  var el = document.createElement('div');
+  el.id = 'loc-overlay';
+  el.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(13,10,46,.97);display:flex;align-items:center;justify-content:center;padding:24px;animation:si .25s ease both';
+  el.innerHTML = '<div style="text-align:center;max-width:340px">'
+    + '<div style="font-size:52px;margin-bottom:18px">📍</div>'
+    + '<div style="font-size:20px;font-weight:900;color:#fff;margin-bottom:12px;line-height:1.3">רגע אחד לפני</div>'
+    + '<div style="font-size:14px;color:rgba(255,255,255,.8);line-height:1.9;margin-bottom:22px">'
+    + 'כדי שנוכל לשלוח לך את תוצאות הקלפי שלך ותוצאות כלל-ארצי במהלך יום הבחירות — הדפדפן יבקש לדעת את מיקומך.'
+    + '<br><br>'
+    + '<strong style="color:#a3e635">קליק אחד בלבד</strong> — בחר/י <strong style="color:#a3e635">״רק בעת ביקורך באתר״</strong> וסיימנו.'
+    + '</div>'
+    + '<button onclick="document.getElementById(\'loc-overlay\').remove(); window._locCb && window._locCb();" '
+    + 'style="width:100%;padding:15px;border-radius:14px;background:linear-gradient(to left,#a3e635,#22d3ee);color:#061000;font-size:17px;font-weight:900;border:none;cursor:pointer;font-family:inherit">הבנתי — המשך ›</button>'
+    + '</div>';
+  window._locCb = callback;
+  document.body.appendChild(el);
+}
+
+/* ── S3 LOCATION — real geolocation permission request ── */
+function s3() {
+  var st = T.pushStatus || 'idle';
+
+  // ✓ push granted
+  if (st === 'granted') {
+    return '<div class="spage sc" style="text-align:center">'
+      + '<div class="bigicon bi-g">🔔</div>'
+      + '<div class="sh2">מעולה! תקבל/י התראה ביום הבחירות</div>'
+      + '<div class="ssub">נשלח לך עדכון חי מהקלפי שלך ותוצאות ארציות — ביום הבחירות בדיוק כשזה חשוב.</div>'
+      + btnP('המשך ›', 'go()')
+      + '</div>';
+  }
+
+  // ✗ blocked (was previously denied by browser)
+  if (st === 'blocked') {
+    return '<div class="spage sc" style="text-align:center">'
+      + '<div class="bigicon bi-l">🔔</div>'
+      + '<div class="sh2">ההתראות חסומות בדפדפן שלך</div>'
+      + '<div class="ssub" style="font-size:13px;line-height:1.8">כדי לאפשר: לחץ/י על סמל המנעול בסרגל הכתובת → <strong style="color:#a3e635">אפשר התראות</strong> → רענן את הדף.</div>'
+      + btnP('המשך בלי התראות ›', 'go()')
+      + '</div>';
+  }
+
+  // unsupported browser
+  if (st === 'unsupported') {
+    return '<div class="spage sc" style="text-align:center">'
+      + '<div class="bigicon bi-l">🔔</div>'
+      + '<div class="sh2">הדפדפן שלך אינו תומך בהתראות</div>'
+      + '<div class="ssub">פתח/י בדפדפן Chrome לחוויה מלאה.</div>'
+      + btnP('המשך ›', 'go()')
+      + '</div>';
+  }
+
+  // ✗ denied (user just clicked "deny" in the prompt)
+  if (st === 'denied') {
+    return '<div class="spage sc" style="text-align:center">'
+      + '<div class="bigicon bi-l">🔔</div>'
+      + '<div class="sh2">לא נורא — אפשר להמשיך בלי</div>'
+      + '<div class="ssub">לא תקבל/י עדכון אוטומטי ביום הבחירות, אבל תמיד תוכל/י לפתוח את הסקר ולראות תוצאות.</div>'
+      + btnP('המשך ›', 'go()')
+      + '</div>';
+  }
+
+  // idle — the ask
+  return '<div class="spage sc" style="text-align:center">'
+    + '<div class="bigicon bi-l">🔔</div>'
+    + '<span class="pill pill-y">צעד אחרון</span>'
+    + '<div class="sh2" style="font-size:22px;font-weight:900">רוצה לקבל דיווח שוטף ביום הבחירות על תוצאות בקלפי שלך ובכל הארץ?</div>'
+    + card('<div style="text-align:right;line-height:2.2;font-size:13px;font-weight:700">'
+        + '<div style="font-size:12px;color:rgba(255,255,255,.65);margin-bottom:8px">תקבל — ללא כל התחייבות:</div>'
+        + '🔔 התראה אוטומטית ביום הבחירות<br>'
+        + '📍 מיקום הקלפי שלך במדויק<br>'
+        + '📊 תוצאות מהאזור שלך וכלל ארציות — בזמן אמת<br>'
+        + '🗳️ זכות להשתתף ב"סקר יציאה" ותוצאותיו<br>'
+        + '🏆 הודעה על מצב הנקודות שלך ותוצאות אמת — בסוף היום, לפני כולם<br>'
+        + '<div style="margin-top:8px;font-size:12px;color:rgba(255,255,255,.75)">👆 אישור אחד בלבד — וסיימנו</div>'
+        + '</div>')
+    + '<button class="btn-p" onclick="requestPush()">אפשר התראות ביום הבחירות ›</button>'
+    + btnSec('המשך בלי התראות ›', 'T.pushStatus=\'denied\';render()')
+    + '</div>';
+}
+
+function requestPush() {
+  if (!('Notification' in window)) { T.pushStatus = 'unsupported'; render(); return; }
+  if (Notification.permission === 'granted') { T.pushStatus = 'granted'; render(); return; }
+  if (Notification.permission === 'denied') { T.pushStatus = 'blocked'; render(); return; }
+  Notification.requestPermission().then(function(p) {
+    T.pushStatus = p === 'granted' ? 'granted' : 'denied';
+    render();
+  });
+}
+
+/* ── Geolocation handling ── */
+function requestLocation() {
+  if (!navigator.geolocation) { T.locStatus = 'error'; render(); return; }
+  T.locStatus = 'requesting'; render();
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      T.lat = pos.coords.latitude.toFixed(6);
+      T.lng = pos.coords.longitude.toFixed(6);
+      T.locOk = true;
+      T.locStatus = 'ok';
+      render();
+    },
+    function(err) {
+      T.locOk = false;
+      if (err && err.code === 1) {                 // PERMISSION_DENIED
+        T.locStatus = isInAppBrowser() ? 'inapp' : 'denied';
+      } else {
+        T.locStatus = 'error';
+      }
+      render();
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  );
+}
+
+function isInAppBrowser() {
+  return /WhatsApp|FBAN|FBAV|FB_IAB|Instagram|Line\/|MicroMessenger|Twitter|TikTok/i.test(navigator.userAgent || '');
+}
+
+function copyLink() {
+  var url = window.location.href;
+  var done = function(){ var b = document.getElementById('copy-btn'); if (b) b.textContent = 'הקישור הועתק ✓'; };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(done).catch(function(){ window.prompt('העתק/י את הקישור:', url); });
+  } else {
+    window.prompt('העתק/י את הקישור:', url);
+  }
+}
+
+/* ── S4 SUCCESS — two distinct paths ── */
+function s4() {
+  return '<div class="spage sc" style="text-align:center">'
+    + '<div class="bigicon bi-g">✓</div>'
+    + '<div class="sh2">הצטרפת בהצלחה!</div>'
+    + '<div style="font-size:19px;font-weight:900;color:#a3e635;margin-bottom:15px">הסקר של המדינה 🇮🇱</div>'
+    + card(
+        '<div style="text-align:right">'
+        + '<div style="font-size:16px;font-weight:900;color:#facc15;margin-bottom:10px">עכשיו השלב החשוב:</div>'
+        + '<div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.9);line-height:1.9;margin-bottom:10px">תחזית הבחירות שלך — רוצה להוכיח שאתה מכיר את ישראל הפוליטית?</div>'
+        + '<div style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.8">נחש את תוצאות האמת של הבחירות האמיתיות — מי המפלגה הגדולה, השנייה והשלישית.</div>'
+        + '<div style="font-size:13px;font-weight:900;color:#a3e635;margin-top:10px;line-height:1.7">הזוכים יקבעו לפי תוצאות האמת שיפורסמו לאחר הבחירות. 🏆</div>'
+        + '</div>'
+      )
+    + '<button class="btn-p" onclick="goToBonus()" style="margin-top:13px">לתחזית הבחירות שלי ›</button>'
+    + '<button class="btn-s" onclick="goToResults()">דלג</button>'
+    + '</div>';
+}
+// ── FIX: bonus → step 5, skip → step 6 ──
+// ── bonus → step 6, skip → step 7 ──
+function goToBonus()   { step = 4; render(); }
+function goToResults() { step = 5; render(); }
+
+/* ── S5 BONUS — selects bound after render ── */
+function s5() {
+  function sel(val, opts, id, lbl, pts, excl) {
+    var os = opts.map(function(o) {
+      var d = excl && excl.indexOf(o) !== -1 && o !== val;
+      return '<option value="'+o+'"'+(val===o?' selected':'')+(d?' disabled':'')+'>'+(d?'✗ ':'')+o+'</option>';
+    }).join('');
+    return '<div style="margin-bottom:6px">'
+      +'<span class="flbl" style="display:flex;justify-content:space-between"><span>'+lbl+'</span>'
+      +'<span style="background:rgba(250,204,21,.15);border:1px solid rgba(250,204,21,.3);border-radius:99px;padding:2px 9px;font-size:10px;color:#facc15">'+pts+'</span></span>'
+      +'<select id="sel-'+id+'" class="fsel"><option value="">בחר/י</option>'+os+'</select></div>';
+  }
+
+  return '<div class="spage sc">'
+    +'<span class="pill pill-f">תחזית הבחירות</span>'
+    +'<div class="sh2">תחזית הבחירות שלך</div>'
+    +'<div class="ssub" style="color:rgba(255,255,255,.85)">לתוצאות <strong style="color:#facc15">האמת הסופיות</strong>. הזוכים נקבעים לפי הספירה הרשמית.</div>'
+    +card(
+      '<div style="font-size:11px;color:rgba(255,255,255,.75);margin-bottom:10px">כל ניחוש מדויק: <strong style="color:#facc15">עד 300 נק׳</strong> · יחושב לפי תוצאות האמת אחרי הבחירות</div>'
+      +sel(S.f1,FORECAST,'f1','מי תהיה המפלגה הגדולה?','עד 300 נק׳',[S.f2,S.f3])
+      +sel(S.f2,FORECAST,'f2','מי תהיה המפלגה השנייה?','עד 300 נק׳',[S.f1,S.f3])
+      +sel(S.f3,FORECAST,'f3','מי תהיה המפלגה השלישית?','עד 300 נק׳',[S.f1,S.f2])
+      +'<span class="flbl" style="margin-top:14px;font-size:14px;color:#facc15;white-space:nowrap">למי הצבעת בבחירות האחרונות בשנת 2022 — <span style="color:#a3e635">60 נקודות</span></span>'
+      +'<select id="sel-prev" class="fsel"><option value="">בחר/י</option>'
+      +PREV.map(function(o){return '<option value="'+o+'"'+(S.prev===o?' selected':'')+'>'+o+'</option>';}).join('')
+      +'</select>'
+    )
+    +'<button class="btn-p" onclick="go()">המשך לסיכום בחירתך ›</button>'
+    +'<div style="margin-top:16px;padding:14px;background:rgba(0,0,0,.25);border-radius:14px;border:1px solid rgba(255,255,255,.1)">'
+      +'<div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.85);margin-bottom:12px;text-align:center">שכחת מה היו תוצאות הבחירות הקודמות? הנה תזכורת 👇</div>'
+      +card(
+        '<div style="font-size:12px;font-weight:900;color:#a3e635;margin-bottom:8px;text-align:right">📊 תוצאות אמת — כנסת ה-25, נובמבר 2022</div>'
+        +R22.map(function(r){
+          return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">'
+            +'<div style="width:100px;font-size:11px;color:rgba(255,255,255,.85);text-align:right;flex-shrink:0">'+r.n+'</div>'
+            +'<div style="flex:1;height:5px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden">'
+            +'<div style="height:100%;width:'+Math.round(r.s/32*100)+'%;background:linear-gradient(to left,#a3e635,#22d3ee)"></div></div>'
+            +'<div style="font-size:11px;color:#facc15;width:22px;text-align:left">'+r.s+'</div></div>';
+        }).join('')
+        +'<div style="font-size:10px;color:rgba(255,255,255,.72);margin-top:6px">מרצ ובל\"ד לא עברו את אחוז החסימה.</div>'
+      )
+    +'</div>'
+    +'</div>';
+}
+
+/* ── S7 FINAL ── */
+function s7_sum() {
+
+  function row(num, label, value, color) {
+    return '<tr style="border-bottom:1px solid rgba(255,255,255,.07)">'
+      +'<td style="padding:11px 0 11px 8px;vertical-align:middle;width:48%">'
+        +'<span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:rgba(163,230,53,.15);border:1px solid rgba(163,230,53,.3);border-radius:6px;font-size:11px;font-weight:900;color:#a3e635;margin-left:7px;flex-shrink:0">'+num+'</span>'
+        +'<span style="font-size:13px;color:rgba(255,255,255,.6)">'+label+'</span>'
+      +'</td>'
+      +'<td style="padding:11px 0;font-size:15px;font-weight:900;color:'+(color||'#fff')+';text-align:left;line-height:1.3">'+(value||'—')+'</td>'
+    +'</tr>';
+  }
+
+  // בקשה שנייה לת"ז — מוצגת רק אם דילג ועדיין לא מילא
+  var id4Request = '';
+  if (T.id4Skipped && !T.id4) {
+    id4Request = '<div style="background:rgba(250,204,21,.08);border:1.5px solid rgba(250,204,21,.3);border-radius:16px;padding:16px;margin-bottom:14px;text-align:right">'
+      +'<div style="font-size:15px;font-weight:900;color:#facc15;margin-bottom:6px">🏆 רוצה להיות זכאי/ת לפרסים?</div>'
+      + '<div style="font-size:12px;color:rgba(255,255,255,.75);margin-bottom:12px;line-height:1.8">4 ספרות אחרונות של ת"ז מונעות הצבעות כפולות והטיה זדונית מכוונת — זו גם הדרך שלנו לאמת שהרשומה היא אכן שלך לצורך קבלת פרס. <strong style="color:#a3e635">מוסיף 50 נקודות בונוס</strong>.</div>'
+      +'<input id="inp-id4-final" class="inp" type="text" inputmode="numeric" maxlength="4" placeholder="_ _ _ _" style="letter-spacing:.45em;font-size:20px;text-align:center;margin-bottom:10px">'
+      +'<button class="btn-p" onclick="saveId4Final()" style="margin-top:0">אמת את הרשומה שלך ›</button>'
+      +'</div>';
+  }
+
+  // כפתורי חזרה לשדות חסרים
+  var missingBtns = '';
+  var missing = [];
+  if (!T.id4 && T.id4Skipped) missing.push({lbl:'הוסף 4 ספרות ת"ז — ומוסיף 50 נקודות', step:2, note:'מאמת את הרשומה שלך'});
+  if (!T.phone) missing.push({lbl:'הוסף טלפון — לעדכונים ביום הבחירות', step:2, note:'לקבוצת הוואטסאפ'});
+  if (!S.f1 || !S.f2 || !S.f3) missing.push({lbl:'השלם תחזיות מפלגות', step:4, note:'עד 300 נק׳ לכל ניחוש'});
+  if (!S.prev) missing.push({lbl:'השלם הצבעה 2022', step:4, note:'50 נקודות'});
+  if (missing.length > 0) {
+    missingBtns = '<div style="background:rgba(251,146,60,.08);border:1.5px solid rgba(251,146,60,.4);border-radius:14px;padding:13px;margin-bottom:14px;text-align:right">'
+      +'<div style="font-size:15px;font-weight:900;color:#fb923c;margin-bottom:12px">📝 שדות שלא מולאו — רוצה להשלים?</div>'
+      + missing.map(function(m){
+          return '<button onclick="step='+m.step+';render()" style="display:block;width:100%;margin-bottom:7px;background:rgba(99,102,241,.2);border:1px solid rgba(99,102,241,.4);border-radius:10px;color:#c7d2fe;font-size:13px;font-weight:700;padding:9px 12px;cursor:pointer;font-family:inherit;text-align:right">'
+            +'← '+m.lbl+' <span style="font-size:11px;color:rgba(255,255,255,.5);font-weight:400">('+m.note+')</span>'
+            +'</button>';
+        }).join('')
+      +'</div>';
+  }
+
+  return '<div class="spage sc" style="text-align:center">'
+    +'<div class="bigicon bi-g">🏆</div>'
+    +'<div class="sh2">הצטרפת למשחק הניחושים הגדול!</div>'
+    +'<div style="font-size:17px;font-weight:900;color:#a3e635;margin-bottom:6px">בהצלחה! 🎉🎉🎉🎉</div>'
+    +'<div style="font-size:14px;font-weight:700;color:#facc15;margin-bottom:16px;line-height:1.6">ואל תשכח — הכי חשוב זה ללכת להצביע! 🗳️</div>'
+    + id4Request
+    + missingBtns
+    +card(
+      '<div style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:8px;text-align:center">אלה הנתונים שאישרת</div>'
+      +'<div style="font-size:13px;font-weight:900;color:#a3e635;margin-bottom:4px;text-align:right">סקר</div>'
+      +'<table style="width:100%;border-collapse:collapse;text-align:right">'
+      +row(1,'לאיזו מפלגה תצביע', S.party, '#facc15')
+      +row(2,'גיל', S.age, '#fff')
+      +row(3,'מגדר', S.gender, '#fff')
+      +row(4,'ישוב', S.city, '#fff')
+      +row(5,'טלפון', T.phone || '—', '#fff')
+      +'</table>'
+      +'<div style="font-size:13px;font-weight:900;color:#a3e635;margin:14px 0 4px;text-align:right">להערכתך מי יהיו:</div>'
+      +'<table style="width:100%;border-collapse:collapse;text-align:right">'
+      +row(7,'המפלגה הגדולה', S.f1, '#a3e635')
+      +row(8,'המפלגה השנייה בגודלה', S.f2, '#a3e635')
+      +row(9,'המפלגה השלישית', S.f3, '#a3e635')
+      +row(10,'הצבעה בבחירות הקודמות', S.prev, '#22d3ee')
+      +'</table>'
+    )
+    
+    +'<div style="font-size:13px;color:rgba(255,255,255,.65);margin-top:14px;line-height:1.7;text-align:center">תוצאות הסקר יפורסמו בקבוצת הוואטסאפ. ואל תשכח — ללכת להצביע! 🗳️</div>'
+    +'<button class="btn-p" onclick="go()" style="margin-top:16px;font-size:17px;padding:17px">✅ לאימות הצבעה וסיום ›</button>'
+    +'<button class="btn-s" onclick="skipToEnd()" style="margin-top:10px">דלג ›</button>'
+    +'</div>';
+}
+
+function s7_share() {
+  return '<div class="spage sc" style="text-align:center">'
+    +'<div class="bigicon">📣</div>'
+    +'<div class="sh2">העבירו לכל חבריכם!</div>'
+    +'<div class="ssub" style="color:rgba(255,255,255,.85)">על כל חבר שיצטרף דרככם — <strong style="color:#facc15">50 נקודות בונוס!</strong></div>'
+    +'<div style="background:linear-gradient(135deg,rgba(99,102,241,.15),rgba(163,230,53,.1));border:1.5px solid rgba(163,230,53,.3);border-radius:18px;padding:16px;margin-top:0;text-align:right">'
+      +'<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">'
+        // וואטסאפ
+        +'<button onclick="shareWA()" style="background:#25D366;border:none;border-radius:12px;padding:12px 8px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;font-size:13px;font-weight:900;color:#fff">'
+          +'<svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.855L0 24l6.293-1.507A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.003-1.366l-.36-.213-3.733.894.942-3.648-.235-.374A9.818 9.818 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182c5.43 0 9.818 4.388 9.818 9.818 0 5.43-4.388 9.818-9.818 9.818z"/></svg>'
+          +'וואטסאפ'
+        +'</button>'
+        // פייסבוק
+        +'<button onclick="shareFB()" style="background:#1877F2;border:none;border-radius:12px;padding:12px 8px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;font-size:13px;font-weight:900;color:#fff">'
+          +'<svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.268h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>'
+          +'פייסבוק'
+        +'</button>'
+        // טוויטר/X
+        +'<button onclick="shareX()" style="background:#000;border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:12px 8px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;font-size:13px;font-weight:900;color:#fff">'
+          +'<svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>'
+          +'X / טוויטר'
+        +'</button>'
+        // העתק קישור
+        +'<button onclick="copyShareLink(this)" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:12px 8px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;font-size:13px;font-weight:900;color:#fff">'
+          +'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>'
+          +'העתק קישור'
+        +'</button>'
+      +'</div>'
+    +'</div>'
+
+    +'<div style="font-size:11px;color:rgba(255,255,255,.65);margin-top:16px;line-height:1.7;text-align:center"><a href="https://gilboashlomo-code.github.io/HASEKER-/haseker_terms.pdf" target="_blank" rel="noopener" style="color:rgba(255,255,255,.72);text-decoration:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:3px 10px">תנאי שימוש ומדיניות פרטיות</a> &nbsp;·&nbsp; הסקר של המדינה © 2026</div>'
+    +'<div style="margin-top:16px;background:linear-gradient(135deg,rgba(250,204,21,.12),rgba(163,230,53,.08));border:1.5px solid rgba(250,204,21,.4);border-radius:16px;padding:16px;text-align:center">'
+      +'<div style="font-size:16px;font-weight:900;color:#facc15;margin-bottom:6px">🏆 בונוס מיוחד לבוחרים מאומתים</div>'
+      +'<div style="font-size:12px;color:rgba(255,255,255,.8);margin-bottom:12px;line-height:1.7">4 ספרות ת"ז מאמתות שהרשומה היא שלך — ומוסיפות 50 נקודות. רק מאומתים זכאים לפרסים.</div>'
+      +'<button class="btn-p" onclick="go()" style="margin-top:0">לבונוס המאומתים ›</button>'
+      +'</div>'
+    +'<button class="btn-s" onclick="skipToEnd()" style="margin-top:12px">דלג ›</button>'
+    +'</div>';
+}
+function skipToEnd() { if (T.phone) savePartial(); step = 8; render(); }
+function shareWA() {
+  var msg = 'השתתפתי בסקר הגדול של המדינה!\nגם אתם יכולים לזכות בפרסים ולעזור לנו לנצח!\n\n';
+  var txt = encodeURIComponent(msg + window.location.href);
+  window.open('https://wa.me/?text=' + txt, '_blank');
+}
+function shareFB() {
+  var u = encodeURIComponent(window.location.href);
+  var w = 600, h = 500;
+  var left = (screen.width - w) / 2, top = (screen.height - h) / 2;
+  window.open('https://www.facebook.com/sharer/sharer.php?u=' + u,
+    'fbshare', 'width='+w+',height='+h+',left='+left+',top='+top+',scrollbars=yes');
+}
+function shareX() {
+  var txt = encodeURIComponent('הצבעתי בסקר הגדול של המדינה — גם אתם יכולים לזכות בפרסים!\n\n' + window.location.href);
+  window.open('https://twitter.com/intent/tweet?text=' + txt, '_blank');
+}
+function copyShareLink(btn) {
+  var url = window.location.href;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(function() {
+      btn.textContent = '✓ הועתק!';
+      setTimeout(function(){ btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> העתק קישור'; }, 2500);
+    });
+  } else {
+    window.prompt('העתק/י את הקישור:', url);
+  }
+}
+
+function saveId4Final() {
+  var el = document.getElementById('inp-id4-final');
+  if (el && /^\d{4}$/.test(el.value)) {
+    T.id4 = el.value;
+    T.id4Skipped = false;
+    render();
+  }
+}
+
+function go()  {
+  // חזרה משדה חסר → ישר לעמוד הסיום
+  if (returnToEnd) {
+    returnToEnd = false;
+    step = 9;
+    render();
+    return;
+  }
+  step = Math.min(9, step + 1);
+  // שמירה הדרגתית: אחרי שלב 2 (פרטים+טלפון) וכל שלב אחריו
+  if (step >= 3 && T.phone) savePartial();
+  // בכניסה למסך הסיום - שולחים את ההגשה פעם אחת בלבד
+  if (step === 9) submitSurvey();
+  render();
+}
+
+// ── צינור שמירה ──────────────────────────────────────────────
+var SHEETS_URL = 'https://script.google.com/macros/s/AKfycby8q-vpxg8iIaDNUwZ4z9BNp95sw6r_ooR3CTEWtb7x1bInSaaMWbnJE1MH-a47ZFyC/exec';
+var SUBMITTED = false;
+var SESSION_ID = 'S' + Date.now() + Math.random().toString(36).slice(2,7);
+
+function buildRow() {
+  function ref() {
+    try { return new URLSearchParams(window.location.search).get('ref') || ''; }
+    catch (e) { return ''; }
+  }
+  return {
+    session_id: SESSION_ID,
+    timestamp:  new Date().toISOString(),
+    party:      S.party || '',
+    age:        S.age || '',
+    gender:     S.gender || '',
+    city:       S.city || '',
+    compass:    S.compass || '',
+    id4:        T.id4 ? String(T.id4) : '',
+    phone:      T.phone || '',
+    forecast1:  S.f1 || '',
+    forecast2:  S.f2 || '',
+    forecast3:  S.f3 || '',
+    prev_vote:  S.prev || '',
+    lat:        T.lat || '',
+    lng:        T.lng || '',
+    updates:    S.updates ? 'כן' : 'לא',
+    referrer:   ref(),
+    status:     'חלקי'
+  };
+}
+
+function savePartial() {
+  if (!T.phone) return;
+  var row = buildRow();
+  if (SHEETS_URL && SHEETS_URL.indexOf('PASTE_') !== 0) {
+    fetch(SHEETS_URL, { method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify(row) }).catch(function(){});
+  }
+  try {
+    var arr = JSON.parse(localStorage.getItem('hsk_rows')||'[]');
+    var idx = -1;
+    for (var i=0;i<arr.length;i++) { if (arr[i].session_id===SESSION_ID){idx=i;break;} }
+    if (idx >= 0) arr[idx] = row; else arr.push(row);
+    localStorage.setItem('hsk_rows', JSON.stringify(arr));
+  } catch(e){}
+}
+
+function saveLocalBackup(row) {
+  // גיבוי מקומי - מאפשר ייצוא CSV ידני גם בלי חיבור
+  try {
+    var arr = JSON.parse(localStorage.getItem('hsk_rows') || '[]');
+    arr.push(row);
+    localStorage.setItem('hsk_rows', JSON.stringify(arr));
+  } catch (e) {}
+}
+
+function submitSurvey() {
+  if (SUBMITTED) return;
+  SUBMITTED = true;
+  var row = buildRow();
+  row.status = 'הושלם';
+  saveLocalBackup(row);
+  if (!SHEETS_URL || SHEETS_URL.indexOf('PASTE_') === 0) {
+    console.log('SHEETS_URL לא הוגדר - נשמר רק מקומית:', row);
+    return;
+  }
+  fetch(SHEETS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(row)
+  }).catch(function (e) { console.error('שגיאת שליחה (נשמר מקומית):', e); });
+}
+
+// ייצוא ידני של הגיבוי המקומי כקובץ CSV - הקלד exportLocalCSV() בקונסול
+function exportLocalCSV() {
+  var arr = [];
+  try { arr = JSON.parse(localStorage.getItem('hsk_rows') || '[]'); } catch (e) {}
+  if (!arr.length) { console.log('אין נתונים מקומיים'); return; }
+  var cols = ['timestamp','party','age','gender','city','compass','id4','phone','forecast1','forecast2','forecast3','prev_vote','lat','lng','updates','referrer'];
+  var lines = [cols.join(',')];
+  arr.forEach(function (r) {
+    lines.push(cols.map(function (c) {
+      var v = (r[c] == null ? '' : String(r[c])).replace(/"/g, '""');
+      return /[",\n]/.test(v) ? '"' + v + '"' : v;
+    }).join(','));
+  });
+  var blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'haseker_export.csv';
+  a.click();
+}
+function back() { if (step > 0) { step = step - 1; render(); } }
+function rst() { step = 0; S = {party:'',age:'',gender:'',city:'',compass:'',agree:true,updates:true,agree_id4:true,f1:'',f2:'',f3:'',prev:''}; T = {id4:'',id4Skipped:false,phone:'',lat:'',lng:'',locOk:false,locStatus:'idle',pushStatus:'idle'}; render(); }
+function ss(k, v) { S[k] = v; render(); }
+
+render();
+</script>
+</body>
+</html>
